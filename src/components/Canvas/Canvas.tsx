@@ -1,5 +1,5 @@
-import { BadgePercent, BookOpen, FileText, Grid2X2, Maximize2, Star, ZoomIn, ZoomOut } from 'lucide-react';
-import { useState } from 'react';
+import { BadgePercent, BookOpen, FileText, Grid2X2, Maximize2, RotateCcw, Save, Star, ZoomIn, ZoomOut } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { visiblePresetSummaries } from '../../data/createProject';
 import { DocumentRenderSettings, Page, PresetId, SavedTemplateMeta } from '../../types/project';
 import { PdfPageRenderer } from '../PdfPageRenderer/PdfPageRenderer';
@@ -13,6 +13,7 @@ type CanvasProps = {
   onCreateFromPreset?: (preset: PresetId) => void;
   userTemplates?: SavedTemplateMeta[];
   onCreateFromUserTemplate?: (templateId: string) => void;
+  onCommitPageLayout?: (page: Page) => void;
 };
 
 const zoomSteps = [35, 50, 60, 75, 90, 100, 115, 130, 150, 175, 200];
@@ -45,10 +46,43 @@ export function Canvas({
   onImageDrop,
   onCreateFromPreset,
   userTemplates = [],
-  onCreateFromUserTemplate
+  onCreateFromUserTemplate,
+  onCommitPageLayout
 }: CanvasProps) {
   const [zoom, setZoom] = useState(getInitialZoom);
   const [fullscreen, setFullscreen] = useState(false);
+  const [layoutEditMode, setLayoutEditMode] = useState(false);
+  const [draftPage, setDraftPage] = useState<Page | undefined>(page);
+  const [layoutBaseline, setLayoutBaseline] = useState<Page | null>(null);
+
+  useEffect(() => {
+    if (!layoutEditMode) setDraftPage(page);
+  }, [page, layoutEditMode]);
+
+  function startLayoutEditing() {
+    if (!page) return;
+    const snapshot = structuredClone(page);
+    setLayoutBaseline(snapshot);
+    setDraftPage(structuredClone(page));
+    setLayoutEditMode(true);
+  }
+
+  function saveLayout() {
+    if (!draftPage) return;
+    onCommitPageLayout?.(draftPage);
+    setLayoutEditMode(false);
+  }
+
+  function restoreLayout() {
+    if (!layoutBaseline) return;
+    const restored = structuredClone(layoutBaseline);
+    setDraftPage(restored);
+    onCommitPageLayout?.(restored);
+    setLayoutEditMode(false);
+    setLayoutBaseline(null);
+  }
+
+  const renderedPage = layoutEditMode ? draftPage : page;
 
   function changeZoom(direction: -1 | 1) {
     const index = zoomSteps.findIndex((item) => item === zoom);
@@ -56,16 +90,21 @@ export function Canvas({
     setZoom(zoomSteps[nextIndex]);
   }
 
-  const pageView = page ? (
+  const pageView = renderedPage ? (
     <div className="page-zoom-shell" style={{ transform: `scale(${zoom / 100})` }}>
       <PdfPageRenderer
-        page={page}
+        page={renderedPage}
         renderSettings={renderSettings}
         selectedZoneId={selectedZoneId}
         editorMode
         isLastPage={false}
         onSelectZone={onSelectZone}
         onImageDrop={onImageDrop}
+        layoutEditMode={layoutEditMode}
+        onZoneLayoutChange={(zoneId, layout) => setDraftPage((current) => current ? ({
+          ...current,
+          zones: { ...current.zones, [zoneId]: { ...current.zones[zoneId], layout } }
+        }) : current)}
       />
     </div>
   ) : (
@@ -102,6 +141,11 @@ export function Canvas({
   return (
     <section className="canvas-wrap">
       <div className="canvas-toolbar">
+        <div className="layout-toolbar-actions">
+          <button className={`btn btn-ghost ${layoutEditMode ? 'active' : ''}`} onClick={startLayoutEditing} disabled={!page || layoutEditMode}>Редактировать</button>
+          <button className="btn btn-primary" onClick={saveLayout} disabled={!layoutEditMode}><Save size={16} />Сохранить</button>
+          <button className="btn btn-ghost" onClick={restoreLayout} disabled={!layoutBaseline}><RotateCcw size={16} />Вернуть</button>
+        </div>
         <span>{zoom}%</span>
         <button className="tool" title="Уменьшить" onClick={() => changeZoom(-1)} disabled={zoom === zoomSteps[0]}>
           <ZoomOut size={17} />
@@ -113,7 +157,7 @@ export function Canvas({
           <Maximize2 size={17} />
         </button>
       </div>
-      <div className="canvas-stage" onClick={() => onSelectZone(null)}>
+      <div className={`canvas-stage ${layoutEditMode ? 'layout-grid-active' : ''}`} onClick={() => onSelectZone(null)}>
         {pageView}
       </div>
 

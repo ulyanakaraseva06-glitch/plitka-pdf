@@ -1,4 +1,4 @@
-import { CSSProperties } from 'react';
+import { CSSProperties, PointerEvent as ReactPointerEvent } from 'react';
 import { Accent, DocumentRenderSettings, EditableZone, IconZone, ImageZone, Page, PageFormat, TableZone, TextPalette, ThemeMode, ZoneStyleOverrideKey } from '../../types/project';
 import { CatalogIconGlyph } from '../../data/iconLibrary';
 import { formatMoney, rowTotal } from '../../utils/calculations';
@@ -26,6 +26,8 @@ type PdfPageRendererProps = {
   exportMode?: boolean;
   onSelectZone?: (zoneId: string) => void;
   onImageDrop?: (zoneId: string, file: File) => void;
+  layoutEditMode?: boolean;
+  onZoneLayoutChange?: (zoneId: string, layout: EditableZone['layout']) => void;
 };
 
 const templatePrimaryTextColors = new Set(['#242321', '#1f2227', '#111111', '#3f4246', '#f3eee6']);
@@ -239,7 +241,9 @@ export function PdfPageRenderer(props: PdfPageRendererProps) {
     isLastPage,
     exportMode,
     onSelectZone,
-    onImageDrop
+    onImageDrop,
+    layoutEditMode = false,
+    onZoneLayoutChange
   } = props;
   const resolvedPageFormat = renderSettings?.pageFormat ?? pageFormat;
   const resolvedDocumentTheme = renderSettings?.documentTheme ?? documentTheme;
@@ -274,7 +278,7 @@ export function PdfPageRenderer(props: PdfPageRendererProps) {
     >
       <div className="page-watermark" />
       {Object.values(page.zones).filter((zone) => zone.id !== 'footerBrand' && zone.visible !== false && (resolvedShowDividers || zone.kind !== 'divider') && (resolvedShowLogos || !isLogoZone(zone))).map((zone) => {
-        const className = `page-zone zone-${zone.kind} text-tone-${textTone(zone)} ${editorMode ? 'editable' : ''} ${selectedZoneId === zone.id ? 'selected' : ''}`;
+        const className = `page-zone zone-${zone.kind} text-tone-${textTone(zone)} ${editorMode ? 'editable' : ''} ${layoutEditMode ? 'layout-editable' : ''} ${selectedZoneId === zone.id ? 'selected' : ''}`;
         const style = zoneStyle(page, zone, resolvedDocumentTheme, resolvedDocumentDividerColor, hasDocumentTextOverride);
 
         if (!editorMode) {
@@ -296,6 +300,46 @@ export function PdfPageRenderer(props: PdfPageRendererProps) {
               event.stopPropagation();
               onSelectZone(zone.id);
             }}
+            onPointerDown={(event: ReactPointerEvent<HTMLButtonElement>) => {
+              if (!layoutEditMode || !onZoneLayoutChange) return;
+              event.preventDefault();
+              event.stopPropagation();
+              onSelectZone?.(zone.id);
+              const pageElement = event.currentTarget.closest('.pdf-page');
+              if (!(pageElement instanceof HTMLElement)) return;
+              const rect = pageElement.getBoundingClientRect();
+              const startX = event.clientX;
+              const startY = event.clientY;
+              const initial = { ...zone.layout };
+              const target = event.target as HTMLElement;
+              const resizing = target.classList.contains('zone-resize-handle');
+              const snap = (value: number) => Math.round(value / 2) * 2;
+              const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
+
+              const move = (moveEvent: PointerEvent) => {
+                const dx = ((moveEvent.clientX - startX) / rect.width) * 100;
+                const dy = ((moveEvent.clientY - startY) / rect.height) * 100;
+                if (resizing) {
+                  onZoneLayoutChange(zone.id, {
+                    ...initial,
+                    w: clamp(snap(initial.w + dx), 4, 100 - initial.x),
+                    h: clamp(snap(initial.h + dy), 3, 100 - initial.y)
+                  });
+                } else {
+                  onZoneLayoutChange(zone.id, {
+                    ...initial,
+                    x: clamp(snap(initial.x + dx), 0, 100 - initial.w),
+                    y: clamp(snap(initial.y + dy), 0, 100 - initial.h)
+                  });
+                }
+              };
+              const up = () => {
+                window.removeEventListener('pointermove', move);
+                window.removeEventListener('pointerup', up);
+              };
+              window.addEventListener('pointermove', move);
+              window.addEventListener('pointerup', up, { once: true });
+            }}
             onDragOver={(event) => {
               if (zone.kind !== 'image' || !onImageDrop) return;
               event.preventDefault();
@@ -311,6 +355,7 @@ export function PdfPageRenderer(props: PdfPageRendererProps) {
             }}
           >
             <ZoneView zone={zone} />
+            {layoutEditMode && <span className="zone-resize-handle" aria-hidden="true" />}
           </button>
         );
       })}

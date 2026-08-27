@@ -67,9 +67,6 @@ const audienceLabels: Record<LibraryAudience, string> = {
   client: 'Клиент'
 };
 
-const audienceOrder: Array<'all' | LibraryAudience> = ['all', 'brand', 'dealer', 'client'];
-const sectionOrder: Array<'all' | LibrarySection> = ['all', 'cover', 'overview', 'grid', 'interior', 'specs', 'table', 'price', 'contacts'];
-
 const categoryIcons = {
   cover: FileText,
   catalog_overview: BookOpen,
@@ -129,8 +126,6 @@ export function PageLibrary({
   onApplyPageFormat
 }: PageLibraryProps) {
   const [query, setQuery] = useState('');
-  const [selectedAudience, setSelectedAudience] = useState<'all' | LibraryAudience>('all');
-  const [selectedSection, setSelectedSection] = useState<'all' | LibrarySection>('all');
   const [openCategories, setOpenCategories] = useState<string[]>([]);
   const [presetsOpen, setPresetsOpen] = useState(initialPresetsOpen);
   const [userTemplatesOpen, setUserTemplatesOpen] = useState(false);
@@ -142,12 +137,10 @@ export function PageLibrary({
     return templateSearchIndex
       .filter((entry) => {
         if (search && !entry.searchText.includes(search)) return false;
-        if (selectedSection !== 'all' && entry.template.librarySection !== selectedSection) return false;
-        if (selectedAudience !== 'all' && !entry.template.audiences?.includes(selectedAudience)) return false;
         return true;
       })
       .map((entry) => entry.template);
-  }, [query, selectedAudience, selectedSection]);
+  }, [query]);
 
   const templatesByCategory = useMemo(() => {
     const grouped = new Map<string, PageTemplate[]>();
@@ -163,7 +156,7 @@ export function PageLibrary({
   const canNavigatePreview = filtered.length > 1;
   const previewVote = previewTemplate ? templateVotes[previewTemplate.id] ?? { up: 0, down: 0 } : { up: 0, down: 0 };
   const previewSettings = useMemo<TemplatePreviewSettings>(() => renderSettings, [renderSettings]);
-  const filtersActive = Boolean(query.trim()) || selectedAudience !== 'all' || selectedSection !== 'all';
+  const filtersActive = Boolean(query.trim());
 
   function openAdjacentPreview(direction: -1 | 1) {
     if (!filtered.length) return;
@@ -183,8 +176,6 @@ export function PageLibrary({
 
   function resetFilters() {
     setQuery('');
-    setSelectedAudience('all');
-    setSelectedSection('all');
   }
 
   function voteForTemplate(templateId: string, vote: 'up' | 'down') {
@@ -245,40 +236,6 @@ export function PageLibrary({
         <Search size={16} />
         <input placeholder="Поиск" value={query} onChange={(event) => setQuery(event.target.value)} />
       </label>
-
-      <div className="library-filter-row">
-        <div className="library-filter-group">
-          <span>Аудитория</span>
-          <div className="library-filter-pills">
-            {audienceOrder.map((audience) => (
-              <button
-                key={audience}
-                type="button"
-                className={selectedAudience === audience ? 'active' : ''}
-                onClick={() => setSelectedAudience(audience)}
-              >
-                {audience === 'all' ? 'Все' : audienceLabels[audience]}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="library-filter-group">
-          <span>Раздел</span>
-          <div className="library-filter-pills">
-            {sectionOrder.map((section) => (
-              <button
-                key={section}
-                type="button"
-                className={selectedSection === section ? 'active' : ''}
-                onClick={() => setSelectedSection(section)}
-              >
-                {section === 'all' ? 'Все' : sectionLabels[section]}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
 
       <div className="template-groups">
         {filtered.length === 0 && (

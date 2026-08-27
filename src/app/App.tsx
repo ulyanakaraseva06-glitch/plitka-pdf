@@ -1066,6 +1066,10 @@ export function App() {
             onCreateFromPreset={createProjectFromPreset}
             userTemplates={userTemplates}
             onCreateFromUserTemplate={openUserTemplate}
+            onCommitPageLayout={(page) => updateProject((current) => ({
+              ...current,
+              pages: current.pages.map((item) => item.id === page.id ? page : item)
+            }))}
           />
 
           <DocumentPageStrip

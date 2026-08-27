@@ -647,6 +647,51 @@ button:disabled {
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.05);
 }
 
+.layout-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: auto;
+}
+
+.layout-toolbar-actions .btn {
+  min-height: 34px;
+  padding: 7px 11px;
+  gap: 6px;
+}
+
+.layout-toolbar-actions .btn.active {
+  color: var(--accent, #8f6bc2);
+  background: rgba(143, 107, 194, 0.12);
+}
+
+.canvas-stage.layout-grid-active {
+  background-image:
+    linear-gradient(rgba(116, 92, 151, 0.13) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(116, 92, 151, 0.13) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.page-zone.layout-editable {
+  cursor: move;
+  touch-action: none;
+  overflow: visible;
+}
+
+.zone-resize-handle {
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  width: 11px;
+  height: 11px;
+  border: 2px solid #fff;
+  border-radius: 3px;
+  background: var(--document-accent, #9b79c6);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.24);
+  cursor: nwse-resize;
+  z-index: 5;
+}
+
 .tool.active {
   background: var(--accent-soft);
   color: var(--accent);

@@ -211,16 +211,9 @@ export function PageLibrary({
         </label>
       </section>
 
-      <div className="panel-heading">
-        <div>
-          <strong>Страницы</strong>
-        </div>
-      </div>
+     
 
       <div className="library-toolbar">
-        <span className="panel-subtitle library-counts">
-          {templateStatusCounts.core} в библиотеке · {templateStatusCounts.legacy} резервные · {templateStatusCounts.hidden} скрытые
-        </span>
         {filtersActive && (
           <button type="button" className="library-reset-btn" onClick={resetFilters}>
             Сбросить
@@ -228,9 +221,7 @@ export function PageLibrary({
         )}
       </div>
 
-      <span className="panel-subtitle library-results">
-        {filtered.length} из {pageTemplates.length} страниц по текущему отбору
-      </span>
+     
 
       <label className="search-field">
         <Search size={16} />

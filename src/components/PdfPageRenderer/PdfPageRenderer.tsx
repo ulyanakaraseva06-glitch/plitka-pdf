@@ -269,8 +269,7 @@ export function PdfPageRenderer(props: PdfPageRendererProps) {
 
   return (
     <article
-      className={`pdf-page template-${page.templateId} format-${resolvedPageFormat}`}
-      data-document-theme={resolvedDocumentTheme}
+      className={`pdf-page template-${page.templateId} format-${resolvedPageFormat} ${layoutEditMode ? 'layout-grid-active' : ''}`}data-document-theme={resolvedDocumentTheme}
       data-document-accent={resolvedDocumentAccent}
       data-text-palette={resolvedDocumentTextPalette}
       data-export-page={exportMode ? 'true' : undefined}
@@ -301,58 +300,115 @@ export function PdfPageRenderer(props: PdfPageRendererProps) {
               onSelectZone(zone.id);
             }}
             onPointerDown={(event: ReactPointerEvent<HTMLButtonElement>) => {
-              if (!layoutEditMode || !onZoneLayoutChange) return;
-              event.preventDefault();
-              event.stopPropagation();
-              onSelectZone?.(zone.id);
-              const pageElement = event.currentTarget.closest('.pdf-page');
-              if (!(pageElement instanceof HTMLElement)) return;
-              const rect = pageElement.getBoundingClientRect();
-              const startX = event.clientX;
-              const startY = event.clientY;
-              const initial = { ...zone.layout };
-              const target = event.target as HTMLElement;
-              const resizing = target.classList.contains('zone-resize-handle');
-              const snap = (value: number) => Math.round(value / 2) * 2;
-              const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
+  if (!layoutEditMode || !onZoneLayoutChange) return;
 
-              const move = (moveEvent: PointerEvent) => {
-                const dx = ((moveEvent.clientX - startX) / rect.width) * 100;
-                const dy = ((moveEvent.clientY - startY) / rect.height) * 100;
-                if (resizing) {
-                  onZoneLayoutChange(zone.id, {
-                    ...initial,
-                    w: clamp(snap(initial.w + dx), 4, 100 - initial.x),
-                    h: clamp(snap(initial.h + dy), 3, 100 - initial.y)
-                  });
-                } else {
-                  onZoneLayoutChange(zone.id, {
-                    ...initial,
-                    x: clamp(snap(initial.x + dx), 0, 100 - initial.w),
-                    y: clamp(snap(initial.y + dy), 0, 100 - initial.h)
-                  });
-                }
-              };
-              const up = () => {
-                window.removeEventListener('pointermove', move);
-                window.removeEventListener('pointerup', up);
-              };
-              window.addEventListener('pointermove', move);
-              window.addEventListener('pointerup', up, { once: true });
-            }}
-            onDragOver={(event) => {
-              if (zone.kind !== 'image' || !onImageDrop) return;
-              event.preventDefault();
-              event.dataTransfer.dropEffect = 'copy';
-            }}
-            onDrop={(event) => {
-              if (zone.kind !== 'image' || !onImageDrop) return;
-              const file = event.dataTransfer.files?.[0];
-              if (!file) return;
-              event.preventDefault();
-              event.stopPropagation();
-              onImageDrop(zone.id, file);
-            }}
+  event.preventDefault();
+  event.stopPropagation();
+  onSelectZone?.(zone.id);
+
+  const pageElement = event.currentTarget.closest('.pdf-page');
+  if (!(pageElement instanceof HTMLElement)) return;
+
+  // Реальный размер страницы без учёта CSS transform: scale()
+  const pageWidth = pageElement.offsetWidth;
+  const pageHeight = pageElement.offsetHeight;
+
+  // Размер одной квадратной клетки
+  const GRID_SIZE = 20;
+
+  // Шаг сетки в процентах относительно страницы
+  const gridStepX = (GRID_SIZE / pageWidth) * 100;
+  const gridStepY = (GRID_SIZE / pageHeight) * 100;
+
+  const snapX = (value: number) =>
+    Math.round(value / gridStepX) * gridStepX;
+
+  const snapY = (value: number) =>
+    Math.round(value / gridStepY) * gridStepY;
+
+  const clamp = (value: number, min: number, max: number) =>
+    Math.min(Math.max(value, min), max);
+
+  // Размер страницы на экране с учётом zoom
+  const rect = pageElement.getBoundingClientRect();
+
+  const startX = event.clientX;
+  const startY = event.clientY;
+  const initial = { ...zone.layout };
+
+  const target = event.target as HTMLElement;
+  const resizing = target.classList.contains('zone-resize-handle');
+
+  const move = (moveEvent: PointerEvent) => {
+    const dx =
+      ((moveEvent.clientX - startX) / rect.width) * 100;
+
+    const dy =
+      ((moveEvent.clientY - startY) / rect.height) * 100;
+
+    if (resizing) {
+      const right = snapX(initial.x + initial.w + dx);
+      const bottom = snapY(initial.y + initial.h + dy);
+
+      onZoneLayoutChange(zone.id, {
+        ...initial,
+        w: clamp(
+          right - initial.x,
+          4,
+          100 - initial.x
+        ),
+        h: clamp(
+          bottom - initial.y,
+          3,
+          100 - initial.y
+        )
+      });
+    } else {
+      const x = snapX(initial.x + dx);
+      const y = snapY(initial.y + dy);
+
+      onZoneLayoutChange(zone.id, {
+        ...initial,
+        x: clamp(
+          x,
+          0,
+          100 - initial.w
+        ),
+        y: clamp(
+          y,
+          0,
+          100 - initial.h
+        )
+      });
+    }
+  };
+
+  const up = () => {
+    window.removeEventListener('pointermove', move);
+    window.removeEventListener('pointerup', up);
+  };
+
+  window.addEventListener('pointermove', move);
+  window.addEventListener('pointerup', up, { once: true });
+}}
+onDragOver={(event) => {
+  if (zone.kind !== 'image' || !onImageDrop) return;
+
+  event.preventDefault();
+  event.dataTransfer.dropEffect = 'copy';
+}}
+
+onDrop={(event) => {
+  if (zone.kind !== 'image' || !onImageDrop) return;
+
+  const file = event.dataTransfer.files?.[0];
+  if (!file) return;
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  onImageDrop(zone.id, file);
+}}
           >
             <ZoneView zone={zone} />
             {layoutEditMode && <span className="zone-resize-handle" aria-hidden="true" />}

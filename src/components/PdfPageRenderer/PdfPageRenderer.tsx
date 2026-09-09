@@ -1,4 +1,8 @@
-import { CSSProperties, PointerEvent as ReactPointerEvent } from 'react';
+import {
+  CSSProperties,
+  PointerEvent as ReactPointerEvent,
+  useState
+} from 'react';
 import { Accent, DocumentRenderSettings, EditableZone, IconZone, ImageZone, Page, PageFormat, TableZone, TextPalette, ThemeMode, ZoneStyleOverrideKey } from '../../types/project';
 import { CatalogIconGlyph } from '../../data/iconLibrary';
 import { formatMoney, rowTotal } from '../../utils/calculations';
@@ -28,6 +32,8 @@ type PdfPageRendererProps = {
   onImageDrop?: (zoneId: string, file: File) => void;
   layoutEditMode?: boolean;
   onZoneLayoutChange?: (zoneId: string, layout: EditableZone['layout']) => void;
+  onZoneChange?: (zoneId: string, zone: EditableZone) => void;
+  onZoneDelete?: (zoneId: string) => void;
 };
 
 const templatePrimaryTextColors = new Set(['#242321', '#1f2227', '#111111', '#3f4246', '#f3eee6']);
@@ -192,9 +198,29 @@ function renderIconZone(zone: IconZone) {
   );
 }
 
-function ZoneView({ zone }: { zone: EditableZone }) {
-  if (zone.kind === 'divider') return <div className="divider-zone" aria-hidden="true" />;
-  if (zone.kind === 'panel') return <div className="panel-zone" aria-hidden="true" />;
+function ZoneView({
+  zone,
+  editing,
+  onTextChange,
+  onFinishTextEditing,
+  onTableChange,
+  onFeaturesChange
+}: {
+  zone: EditableZone;
+  editing?: boolean;
+  onTextChange?: (value: string) => void;
+  onFinishTextEditing?: () => void;
+  onTableChange?: (zone: TableZone) => void;
+  onFeaturesChange?: (items: string[]) => void;
+}) {
+  if (zone.kind === 'divider') {
+    return <div className="divider-zone" aria-hidden="true" />;
+  }
+
+  if (zone.kind === 'panel') {
+    return <div className="panel-zone" aria-hidden="true" />;
+  }
+
   if (zone.kind === 'image') {
     return (
       <div
@@ -205,22 +231,145 @@ function ZoneView({ zone }: { zone: EditableZone }) {
       />
     );
   }
-  if (zone.kind === 'table') return renderTable(zone);
-  if (zone.kind === 'icon') return renderIconZone(zone);
+
+  if (zone.kind === 'table') {
+  if (!editing) {
+    return renderTable(zone);
+  }
+
+  return (
+    <div className="editable-table">
+      <table className="pdf-table">
+        <thead>
+          <tr>
+            {zone.columns.map((column) => (
+              <th key={column.id}>
+                {column.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+
+        <tbody>
+          {zone.rows.map((row, rowIndex) => (
+            <tr key={rowIndex}>
+              {zone.columns.map((column) => {
+                const value =
+                  column.type === 'total'
+                    ? formatMoney(rowTotal(row))
+                    : row[column.id];
+
+                return (
+                  <td key={column.id}>
+                    <input
+                      value={String(value ?? '')}
+                      onChange={(event) => {
+                        const rows = [...zone.rows];
+
+                        rows[rowIndex] = {
+                          ...rows[rowIndex],
+                          [column.id]: event.target.value
+                        };
+
+                        onTableChange?.({
+                          ...zone,
+                          rows
+                        });
+                      }}
+                      onPointerDown={(event) => event.stopPropagation()}
+                      onClick={(event) => event.stopPropagation()}
+                    />
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+  if (zone.kind === 'icon') {
+    return renderIconZone(zone);
+  }
+
   if (zone.kind === 'features') {
+  if (!editing) {
     return (
       <div className="feature-list">
         {zone.items.map((item, index) => (
-          <div key={`${item}-${index}`}><span>{index + 1}</span>{item}</div>
+          <div key={`${item}-${index}`}>
+            <span>{index + 1}</span>
+            {item}
+          </div>
         ))}
       </div>
     );
   }
-  return <div className={`text-zone text-${zone.size ?? 'body'} text-tone-${textTone(zone)} align-${zone.align ?? 'left'}`}>{zone.value}</div>;
+
+  return (
+    <div
+      className="feature-list editable-features"
+      onPointerDown={(event) => event.stopPropagation()}
+      onClick={(event) => event.stopPropagation()}
+    >
+      {zone.items.map((item, index) => (
+        <div key={`${zone.id}-${index}`}>
+          <span>{index + 1}</span>
+
+         <input
+  value={item}
+  onChange={(event) => {
+    const items = [...zone.items];
+    items[index] = event.target.value;
+    onFeaturesChange?.(items);
+  }}
+  onPointerDown={(event) => {
+    event.stopPropagation();
+  }}
+  onClick={(event) => {
+    event.stopPropagation();
+  }}
+  onBlur={() => {
+    onFinishTextEditing?.();
+  }}
+/>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+  if (editing && zone.kind === 'text') {
+    return (
+      <textarea
+  className="zone-text-editor"
+  value={zone.value}
+  autoFocus
+  onChange={(event) => onTextChange?.(event.target.value)}
+  onPointerDown={(event) => event.stopPropagation()}
+  onClick={(event) => event.stopPropagation()}
+  onBlur={() => onFinishTextEditing?.()}
+/>
+    );
+  }
+
+  return (
+    <div
+      className={`text-zone text-${zone.size ?? 'body'} text-tone-${textTone(zone)} align-${zone.align ?? 'left'}`}
+    >
+      {zone.value}
+    </div>
+  );
 }
 
 export function PdfPageRenderer(props: PdfPageRendererProps) {
-  const {
+    const [editingTextZoneId, setEditingTextZoneId] = useState<string | null>(null);
+    function finishTextEditing() {
+  setEditingTextZoneId(null);
+}
+const {
     page,
     renderSettings,
     pageFormat = 'a4_portrait',
@@ -243,7 +392,9 @@ export function PdfPageRenderer(props: PdfPageRendererProps) {
     onSelectZone,
     onImageDrop,
     layoutEditMode = false,
-    onZoneLayoutChange
+    onZoneLayoutChange,
+    onZoneChange,
+    onZoneDelete
   } = props;
   const resolvedPageFormat = renderSettings?.pageFormat ?? pageFormat;
   const resolvedDocumentTheme = renderSettings?.documentTheme ?? documentTheme;
@@ -295,10 +446,26 @@ export function PdfPageRenderer(props: PdfPageRendererProps) {
             className={className}
             style={style}
             onClick={(event) => {
-              if (!onSelectZone) return;
-              event.stopPropagation();
-              onSelectZone(zone.id);
-            }}
+  if (!onSelectZone) return;
+
+  event.stopPropagation();
+  onSelectZone(zone.id);
+}}
+onDoubleClick={(event) => {
+  if (
+    layoutEditMode &&
+    onZoneChange &&
+    (
+      zone.kind === 'text' ||
+      zone.kind === 'table' ||
+      zone.kind === 'features'
+    )
+  ) {
+    event.preventDefault();
+    event.stopPropagation();
+    setEditingTextZoneId(zone.id);
+  }
+}}
             onPointerDown={(event: ReactPointerEvent<HTMLButtonElement>) => {
   if (!layoutEditMode || !onZoneLayoutChange) return;
 
@@ -410,8 +577,77 @@ onDrop={(event) => {
   onImageDrop(zone.id, file);
 }}
           >
-            <ZoneView zone={zone} />
-            {layoutEditMode && <span className="zone-resize-handle" aria-hidden="true" />}
+            <ZoneView
+  zone={zone}
+  editing={editingTextZoneId === zone.id}
+
+  onTextChange={(value) => {
+    if (zone.kind !== 'text' || !onZoneChange) return;
+
+    onZoneChange(zone.id, {
+      ...zone,
+      value
+    });
+  }}
+
+  onTableChange={(updatedZone) => {
+    if (zone.kind !== 'table' || !onZoneChange) return;
+
+    onZoneChange(zone.id, updatedZone);
+  }}
+
+  onFeaturesChange={(items) => {
+    if (zone.kind !== 'features' || !onZoneChange) return;
+
+    onZoneChange(zone.id, {
+      ...zone,
+      items
+    });
+  }}
+
+  onFinishTextEditing={finishTextEditing}
+/>
+
+{layoutEditMode && (
+  <>
+    <span
+  className="zone-delete-button"
+  role="button"
+  tabIndex={0}
+  aria-label="Удалить элемент"
+  onPointerDown={(event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    onZoneDelete?.(zone.id);
+
+    if (editingTextZoneId === zone.id) {
+      setEditingTextZoneId(null);
+    }
+  }}
+  onClick={(event) => {
+    event.preventDefault();
+    event.stopPropagation();
+  }}
+  onKeyDown={(event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      event.stopPropagation();
+
+      onZoneDelete?.(zone.id);
+      setEditingTextZoneId(null);
+    }
+  }}
+>
+  ×
+</span>
+
+    <span
+      className="zone-resize-handle"
+      aria-hidden="true"
+    />
+  </>
+)}
           </button>
         );
       })}

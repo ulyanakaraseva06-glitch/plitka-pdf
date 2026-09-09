@@ -649,7 +649,15 @@ export function createPageFromTemplate(templateId: string, order: number): Page 
     zones: clone(template.defaultZones)
   };
 }
-
+export function createBlankPage(order: number): Page {
+  return {
+    id: createId('page'),
+    templateId: 'blank',
+    title: 'Пустая страница',
+    order,
+    zones: {}
+  };
+}
 export function createProject(preset: PresetId = 'mini_catalog'): Project {
   const now = new Date().toISOString();
   const definition = presetDefinitions[preset];

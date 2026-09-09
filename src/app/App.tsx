@@ -38,7 +38,11 @@ import { LocalDocumentsModal } from '../components/modals/LocalDocumentsModal';
 import { VilrayMaterialsModal } from '../components/modals/VilrayMaterialsModal';
 import { ConfirmModal } from '../components/modals/ConfirmModal';
 import { getDocumentScheme, type DocumentSchemeId } from '../data/documentSchemes';
-import { createPageFromTemplate, createProject, getPresetPreferredSchemeId, getPresetPresentationOverrides } from '../data/createProject';
+import {
+  createPageFromTemplate,
+  createBlankPage
+} from "../data/createProject";
+
 import type {
   DocumentRenderSettings,
   EditableZone,
@@ -151,6 +155,7 @@ export function App() {
   const [history, setHistory] = useState<HistoryState<Project>>(() => createEmptyHistory());
   const [storageWarning, setStorageWarning] = useState('');
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null);
+  const [isAddPageModalOpen, setAddPageModalOpen] = useState(false);
   const [isDesktopEditor, setDesktopEditor] = useState(() => typeof window === 'undefined' ? true : window.innerWidth >= 1180);
 
   const trackedZoneEvents = useRef(new Set<string>());
@@ -802,7 +807,9 @@ export function App() {
     });
     updateProject((current) => applyCompanyProfileToProject(current, profile));
   }
-
+  function openAddPageModal() {
+  setAddPageModalOpen(true);
+}
   function addPage(templateId: string) {
     const page = createPageFromTemplate(templateId, pages.length);
     updateProject((current) => addProjectPage(current, page));
@@ -812,7 +819,17 @@ export function App() {
       pageCountAfter: pages.length + 1
     });
   }
+function addBlankPage() {
+  const page = createBlankPage(pages.length);
 
+  updateProject((current) => addProjectPage(current, page));
+
+  focusPage(page.id);
+
+  trackProjectEvent('blank_page_added', {
+    pageCountAfter: pages.length + 1
+  });
+}
   function duplicatePage(pageId: string) {
     const duplicated = duplicateProjectPage(project, pageId, createId('page'));
     if (!duplicated) return;
@@ -1084,7 +1101,7 @@ export function App() {
             onDelete={removePage}
             onMove={movePage}
             onReorder={reorderPages}
-            onAddEmpty={() => addPage('catalog_sample_grid')}
+           onAddEmpty={openAddPageModal}
           />
         </section>
 
@@ -1120,7 +1137,71 @@ export function App() {
           <VilrayCTA placement="right_panel" onOpenMaterials={(variantId) => openVilrayMaterials('right_cta', variantId)} />
         </aside>
       </main>
+{isAddPageModalOpen && (
+  <div
+    className="add-page-modal-overlay"
+    onClick={() => setAddPageModalOpen(false)}
+  >
+    <div
+      className="add-page-modal"
+      onClick={(event) => event.stopPropagation()}
+    >
+      <div className="add-page-modal-header">
+        <div>
+          <span className="add-page-modal-kicker">Новая страница</span>
+          <h2>Как добавить страницу?</h2>
+          <p>Выберите готовый шаблон или создайте собственную страницу.</p>
+        </div>
 
+        <button
+          type="button"
+          className="add-page-modal-close"
+          onClick={() => setAddPageModalOpen(false)}
+          aria-label="Закрыть"
+        >
+          ×
+        </button>
+      </div>
+
+      <div className="add-page-options">
+        <button
+          type="button"
+          className="add-page-option"
+          onClick={() => {
+            setAddPageModalOpen(false);
+            // Открываем библиотеку шаблонов.
+            // Здесь позже сделаем точный переход к выбору шаблона.
+            document.querySelector<HTMLElement>('.page-library')?.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }}
+        >
+          <span className="add-page-option-icon">📄</span>
+          <span>
+            <strong>Добавить из шаблона</strong>
+            <small>Выбрать готовую страницу из библиотеки</small>
+          </span>
+        </button>
+
+        <button
+          type="button"
+          className="add-page-option"
+          onClick={() => {
+  setAddPageModalOpen(false);
+  addBlankPage();
+}}
+        >
+          <span className="add-page-option-icon">✦</span>
+          <span>
+            <strong>Создать с нуля</strong>
+            <small>Пустая страница с сеткой и виджетами</small>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+)}
       {storageWarning && (
         <div className="storage-warning" role="status">
           <span>{storageWarning}</span>

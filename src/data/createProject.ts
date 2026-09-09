@@ -587,8 +587,6 @@ const presetDefinitions: Record<PresetId, PresetDefinition> = {
     libraryStatus: 'core',
     templateIds: [
       'catalog_outdoor_collection_scene',
-      'catalog_outdoor_copy_column',
-      'catalog_outdoor_dual_scene',
       'catalog_outdoor_sku_quad',
       'catalog_outdoor_sku_mixed',
       'catalog_outdoor_sku_planks',

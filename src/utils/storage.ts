@@ -1,6 +1,28 @@
-import { Project, SavedProjectMeta, SavedTemplateMeta, ServiceSettings } from '../types/project';
+import { Page, Project, SavedProjectMeta, SavedTemplateMeta, ServiceSettings } from '../types/project';
 import { defaultCompanyProfile } from '../data/defaultTexts';
 import { clone, createId } from './clone';
+
+const duplicateOutdoorSceneTemplateIds = new Set([
+  'catalog_outdoor_collection_scene',
+  'catalog_outdoor_scene_mix',
+  'catalog_outdoor_scene_light',
+  'catalog_outdoor_scene_concrete',
+  'catalog_outdoor_scene_pure',
+  'catalog_outdoor_scene_south'
+]);
+
+function collapseDuplicateOutdoorScenes(pages: Page[]): Page[] {
+  let keptScene = false;
+  const nextPages = pages.filter((page) => {
+    if (!duplicateOutdoorSceneTemplateIds.has(page.templateId)) return true;
+    if (keptScene) return false;
+    keptScene = true;
+    return true;
+  });
+
+  if (nextPages.length === pages.length) return pages;
+  return nextPages.map((page, order) => ({ ...page, order }));
+}
 
 export const STORAGE_KEY = 'plitka_pdf_current_project';
 export const SAVED_PROJECTS_KEY = 'plitka_pdf_saved_projects';
@@ -29,7 +51,8 @@ export function normalizeProject(project: Project): Project {
     showLogos: project.showLogos ?? false,
     showPageNumbers: project.showPageNumbers ?? true,
     showDividers: project.showDividers ?? true,
-    theme: legacyTheme
+    theme: legacyTheme,
+    pages: collapseDuplicateOutdoorScenes(project.pages)
   };
 }
 

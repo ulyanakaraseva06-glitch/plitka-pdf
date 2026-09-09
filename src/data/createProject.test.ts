@@ -21,7 +21,7 @@ describe('createProject presets', () => {
       'price_list',
       'selection'
     ]);
-    expect(visiblePresetSummaries.map((item) => item.pageCount)).toEqual([8, 8, 9, 7, 7, 8]);
+    expect(visiblePresetSummaries.map((item) => item.pageCount)).toEqual([8, 6, 9, 7, 7, 8]);
     expect(visiblePresetSummaries.every((item) => item.description.length > 0)).toBe(true);
     expect(visiblePresetSummaries.every((item) => item.audience.length > 0)).toBe(true);
   });
@@ -107,11 +107,9 @@ describe('createProject presets', () => {
     expect(project.title).toBe('Outdoor Collection Catalogue');
     expect(project.pageFormat).toBe('a4_landscape');
     expect(project.showLogos).toBe(false);
-    expect(project.pages).toHaveLength(8);
+    expect(project.pages).toHaveLength(6);
     expect(project.pages.map((page) => page.templateId)).toEqual([
       'catalog_outdoor_collection_scene',
-      'catalog_outdoor_copy_column',
-      'catalog_outdoor_dual_scene',
       'catalog_outdoor_sku_quad',
       'catalog_outdoor_sku_mixed',
       'catalog_outdoor_sku_planks',

@@ -15,6 +15,7 @@ import './styles/export-check-modal.css';
 import './styles/fullscreen-viewer.css';
 import './styles/legal-modal.css';
 import './styles/library-modal.css';
+import './styles/add-page-modal.css';
 import './styles/modal-shell.css';
 import './styles/page-library-controls.css';
 import './styles/storage-warning.css';

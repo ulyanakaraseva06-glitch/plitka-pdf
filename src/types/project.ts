@@ -6,6 +6,7 @@ export type PresetId =
   | 'technical_package'
   | 'moodboard_presentation'
   | 'premium_catalog'
+  | 'outdoor_collection'
   | 'dealer_presentation'
   | 'client_offer'
   | 'empty';
@@ -60,7 +61,28 @@ export type ZoneStyleOverrideKey =
   | 'fit'
   | 'align'
   | 'size'
-  | 'dividerThickness';
+  | 'dividerThickness'
+  | 'fontFamily'
+  | 'fontSizePt'
+  | 'fontWeight'
+  | 'fontStyle'
+  | 'underline'
+  | 'highlightColor';
+
+export type TextFontFamily =
+  | 'sans'
+  | 'serif'
+  | 'times'
+  | 'arial'
+  | 'calibri'
+  | 'cambria'
+  | 'palatino'
+  | 'trebuchet'
+  | 'verdana'
+  | 'garamond';
+
+export type TextAlign = 'left' | 'center' | 'right' | 'justify';
+export type TextSizePreset = 'hero' | 'h1' | 'h2' | 'body' | 'small' | 'badge';
 
 export type BaseZone = {
   id: string;
@@ -75,8 +97,14 @@ export type BaseZone = {
 export type TextZone = BaseZone & {
   kind: 'text';
   value: string;
-  size?: 'hero' | 'h1' | 'h2' | 'body' | 'small' | 'badge';
-  align?: 'left' | 'center' | 'right';
+  size?: TextSizePreset;
+  align?: TextAlign;
+  fontFamily?: TextFontFamily;
+  fontSizePt?: number;
+  fontWeight?: 'normal' | 'bold';
+  fontStyle?: 'normal' | 'italic';
+  underline?: boolean;
+  highlightColor?: string;
 };
 
 export type DividerZone = BaseZone & {
@@ -93,7 +121,7 @@ export type ImageZone = BaseZone & {
   alt: string;
   imageRole?: 'interior' | 'product' | 'decorative';
   aspectRatio?: '16:9' | '9:16' | '4:3' | '3:4' | '1:1' | '1:2' | '2:1' | '5:2';
-  fit?: 'cover' | 'contain';
+  fit?: 'cover' | 'contain' | 'fill';
 };
 
 export type TableColumn = {

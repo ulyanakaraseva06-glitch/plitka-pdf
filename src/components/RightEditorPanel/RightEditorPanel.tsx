@@ -1,9 +1,29 @@
-import { ChangeEvent, DragEvent, ReactNode, useState } from 'react';
-import { ImageIcon, ImageUp, ListChecks, Minus, Plus, RotateCcw, Shapes, Square, Table2, Trash2, Type, Wand2 } from 'lucide-react';
+import { CSSProperties, ChangeEvent, DragEvent, KeyboardEvent, ReactNode, useEffect, useRef, useState } from 'react';
+import { AlignCenter, AlignJustify, AlignLeft, AlignRight, Bold, ChevronDown, ImageIcon, ImageUp, Italic, ListChecks, Minus, Plus, RotateCcw, Shapes, Square, Table2, Trash2, Type, Underline, Wand2 } from 'lucide-react';
 import { catalogIconCategories, catalogIcons, CatalogIconGlyph } from '../../data/iconLibrary';
+import {
+  TEXT_FONTS,
+  TEXT_STYLE_PRESETS,
+  TextEditorDocumentColors,
+  availableFontSizes,
+  defaultFontSizePt,
+  fontCss,
+  highlightSwatches,
+  inferredFontFamily,
+  isTextBold,
+  isTextItalic,
+  parseFontSizePt,
+  sizeFromFontSizePt,
+  textColorSwatches
+} from '../../data/textEditor';
 import { DividerZone, EditableZone, FeatureZone, IconZone, ImageZone, PanelZone, TableZone, TextZone, ZoneStyle, ZoneStyleOverrideKey } from '../../types/project';
 import { compressImage } from '../../utils/images';
 import { ColorPickerPopover } from '../ColorPickerPopover/ColorPickerPopover';
+
+const defaultDocumentColors: TextEditorDocumentColors = {
+  documentTheme: 'light',
+  documentAccent: 'purple'
+};
 
 type RightEditorPanelProps = {
   zone: EditableZone | null;
@@ -12,6 +32,7 @@ type RightEditorPanelProps = {
   onRememberCustomColor: (color: string) => void;
   onApplyLogoStyleToAllPages?: (zone: ImageZone) => void;
   onApplyZoneStyleToSameRole?: (zone: EditableZone) => void;
+  documentColors?: TextEditorDocumentColors;
 };
 
 const MAX_TABLE_ROWS = 6;
@@ -167,7 +188,9 @@ function DesignControls({
   background = true,
   shadow = true,
   radius = true,
-  actionBeforeReset
+  textSwatches = defaultSwatches,
+  actionBeforeReset,
+  onReset
 }: {
   zone: EditableZone;
   onChange: (zone: EditableZone) => void;
@@ -177,15 +200,17 @@ function DesignControls({
   background?: boolean;
   shadow?: boolean;
   radius?: boolean;
+  textSwatches?: string[];
   actionBeforeReset?: {
     label: string;
     onClick: () => void;
   };
+  onReset?: () => void;
 }) {
   const currentTextColor = zone.style?.textColor ?? '#22242A';
   const currentBackground = zone.style?.backgroundColor ?? (zone.kind === 'divider' ? defaultDividerColor : zone.kind === 'image' ? 'transparent' : '#FFFFFF');
   const borderRadius = zone.style?.borderRadius ?? 0;
-  const imageFit = zone.kind === 'image' ? zone.fit ?? (zone.imageRole === 'product' ? 'contain' : 'cover') : null;
+  const imageFit = zone.kind === 'image' ? zone.fit ?? (zone.imageRole === 'product' ? 'contain' : 'fill') : null;
 
   return (
     <section className="color-editor design-card">
@@ -193,8 +218,8 @@ function DesignControls({
       {zone.kind === 'image' && (
         <label className="field compact">
           <span>Вписать</span>
-          <select value={imageFit ?? 'cover'} onChange={(event) => onChange(withOverrides({ ...zone, fit: event.target.value as ImageZone['fit'] }, ['fit']))}>
-            <option value="cover">Заполнить блок</option>
+          <select value={imageFit === 'contain' ? 'contain' : 'fill'} onChange={(event) => onChange(withOverrides({ ...zone, fit: event.target.value as ImageZone['fit'] }, ['fit']))}>
+            <option value="fill">Растянуть</option>
             <option value="contain">Вписать целиком</option>
           </select>
         </label>
@@ -204,7 +229,7 @@ function DesignControls({
           <span>Цвет текста</span>
           <ColorControl
             value={currentTextColor}
-            swatches={defaultSwatches}
+            swatches={textSwatches}
             recentCustomColors={recentCustomColors}
             onChange={(color) => onChange(withStyle(zone, { textColor: color }))}
             onRememberCustomColor={onRememberCustomColor}
@@ -247,11 +272,112 @@ function DesignControls({
       )}
       <button
         className="btn btn-ghost full reset-design-btn"
-        onClick={() => onChange(zone.kind === 'image' ? ({ ...zone, fit: undefined, style: {}, styleOverrides: undefined } as ImageZone) : ({ ...zone, style: {}, styleOverrides: undefined } as EditableZone))}
+        onClick={() => {
+          if (onReset) {
+            onReset();
+            return;
+          }
+          onChange(zone.kind === 'image' ? ({ ...zone, fit: undefined, style: {}, styleOverrides: undefined } as ImageZone) : ({ ...zone, style: {}, styleOverrides: undefined } as EditableZone));
+        }}
       >
         <RotateCcw size={16} />Сбросить оформление
       </button>
     </section>
+  );
+}
+
+function FontSizeField({
+  currentPt,
+  draft,
+  onDraftChange,
+  onCommit
+}: {
+  currentPt: number;
+  draft: string;
+  onDraftChange: (value: string) => void;
+  onCommit: (value: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const sizes = availableFontSizes(currentPt);
+
+  useEffect(() => {
+    if (!open) return;
+    function closeOnOutsideClick(event: MouseEvent) {
+      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+    }
+    document.addEventListener('mousedown', closeOnOutsideClick);
+    return () => document.removeEventListener('mousedown', closeOnOutsideClick);
+  }, [open]);
+
+  function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      setOpen(true);
+      return;
+    }
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      onCommit(event.currentTarget.value);
+      setOpen(false);
+      event.currentTarget.blur();
+      return;
+    }
+    if (event.key === 'Escape') {
+      onDraftChange(String(currentPt));
+      setOpen(false);
+      event.currentTarget.blur();
+    }
+  }
+
+  return (
+    <div className={`font-size-combobox ${open ? 'open' : ''}`} ref={rootRef}>
+      <div className="font-size-input">
+        <input
+          type="text"
+          inputMode="decimal"
+          aria-label="Размер шрифта в пунктах"
+          aria-expanded={open}
+          aria-haspopup="listbox"
+          value={draft}
+          onChange={(event) => onDraftChange(event.target.value)}
+          onBlur={(event) => onCommit(event.target.value)}
+          onKeyDown={handleKeyDown}
+        />
+        <span>pt</span>
+        <button
+          type="button"
+          className="font-size-caret"
+          title="Список размеров"
+          aria-label="Список размеров"
+          tabIndex={-1}
+          onMouseDown={(event) => event.preventDefault()}
+          onClick={() => setOpen((current) => !current)}
+        >
+          <ChevronDown size={16} />
+        </button>
+      </div>
+      {open && (
+        <div className="font-size-menu" role="listbox" aria-label="Размер шрифта">
+          {sizes.map((size) => (
+            <button
+              key={size}
+              type="button"
+              role="option"
+              aria-selected={size === currentPt}
+              className={size === currentPt ? 'active' : ''}
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => {
+                onCommit(String(size));
+                setOpen(false);
+              }}
+            >
+              {size} pt
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -260,54 +386,230 @@ function TextEditor({
   onChange,
   recentCustomColors,
   onRememberCustomColor,
-  onApplyZoneStyleToSameRole
+  onApplyZoneStyleToSameRole,
+  documentColors
 }: {
   zone: TextZone;
   onChange: (zone: TextZone) => void;
   recentCustomColors: string[];
   onRememberCustomColor: (color: string) => void;
   onApplyZoneStyleToSameRole?: (zone: EditableZone) => void;
+  documentColors: TextEditorDocumentColors;
 }) {
   const limit = TEXT_LIMITS[zone.size ?? 'body'];
   const isLong = zone.value.length > limit;
+  const currentPt = zone.fontSizePt ?? defaultFontSizePt(zone.size);
+  const [sizeDraft, setSizeDraft] = useState(String(currentPt));
+  const currentFont = inferredFontFamily(zone);
+  const currentAlign = zone.align ?? 'left';
+  const currentTextColor = zone.style?.textColor ?? '#22242A';
+  const currentHighlight = zone.highlightColor ?? 'transparent';
+  const colorSwatches = textColorSwatches(documentColors);
+  const markerSwatches = highlightSwatches(documentColors);
+  const bold = isTextBold(zone);
+  const italic = isTextItalic(zone);
+  const previewStyle: CSSProperties = {
+    fontFamily: fontCss(currentFont),
+    fontSize: `${Math.min(18, Math.max(13, currentPt))}px`,
+    fontWeight: bold ? 700 : 400,
+    fontStyle: italic ? 'italic' : 'normal',
+    textDecoration: zone.underline ? 'underline' : 'none',
+    textAlign: currentAlign,
+    color: currentTextColor,
+    backgroundColor: currentHighlight !== 'transparent' ? currentHighlight : undefined
+  };
+
+  function patchFormat(patch: Partial<TextZone>, keys: ZoneStyleOverrideKey[]) {
+    onChange(withOverrides({ ...zone, ...patch }, keys));
+  }
+
+  useEffect(() => {
+    setSizeDraft(String(currentPt));
+  }, [currentPt, zone.id]);
+
+  function commitFontSize(raw: string) {
+    const fontSizePt = parseFontSizePt(raw);
+    if (fontSizePt == null) {
+      setSizeDraft(String(currentPt));
+      return;
+    }
+    setSizeDraft(String(fontSizePt));
+    if (fontSizePt === currentPt && zone.fontSizePt === fontSizePt) return;
+    patchFormat({
+      fontSizePt,
+      size: sizeFromFontSizePt(fontSizePt, zone.size)
+    }, ['fontSizePt', 'size']);
+  }
 
   return (
     <>
       <label className="field">
         <span>Текст · {zone.value.length}/{limit}</span>
-        <textarea value={zone.value} onChange={(event) => onChange({ ...zone, value: event.target.value })} rows={7} />
+        <textarea
+          className="text-editor-textarea"
+          value={zone.value}
+          onChange={(event) => onChange({ ...zone, value: event.target.value })}
+          rows={7}
+          style={previewStyle}
+        />
       </label>
       {isLong && <div className="editor-warning">Текст может не поместиться в блок. Сократите его или выберите меньший размер.</div>}
-      <div className="field-row">
-        <label className="field">
-          <span>Размер</span>
-          <select value={zone.size ?? 'body'} onChange={(event) => onChange(withOverrides({ ...zone, size: event.target.value as TextZone['size'] }, ['size']))}>
-            <option value="hero">Крупный</option>
-            <option value="h1">Заголовок</option>
-            <option value="h2">Подзаголовок</option>
-            <option value="body">Обычный</option>
-            <option value="small">Мелкий</option>
-            <option value="badge">Плашка</option>
+      <section className="text-editor-card">
+        <div className="editor-subtitle">Оформление текста</div>
+        <label className="field compact">
+          <span>Шрифт</span>
+          <select
+            value={currentFont}
+            style={{ fontFamily: fontCss(currentFont) }}
+            onChange={(event) => patchFormat({ fontFamily: event.target.value as TextZone['fontFamily'] }, ['fontFamily'])}
+          >
+            {TEXT_FONTS.map((font) => (
+              <option key={font.id} value={font.id} style={{ fontFamily: font.css }}>{font.label}</option>
+            ))}
           </select>
         </label>
-        <label className="field">
-          <span>Выравнивание</span>
-          <select value={zone.align ?? 'left'} onChange={(event) => onChange(withOverrides({ ...zone, align: event.target.value as TextZone['align'] }, ['align']))}>
-            <option value="left">Слева</option>
-            <option value="center">По центру</option>
-            <option value="right">Справа</option>
-          </select>
+        <div className="field-row">
+          <div className="field compact">
+            <span>Размер</span>
+            <FontSizeField
+              currentPt={currentPt}
+              draft={sizeDraft}
+              onDraftChange={setSizeDraft}
+              onCommit={commitFontSize}
+            />
+          </div>
+          <label className="field compact">
+            <span>Стиль</span>
+            <select
+              value={zone.size ?? 'body'}
+              onChange={(event) => {
+                const size = event.target.value as TextZone['size'];
+                patchFormat({
+                  size,
+                  fontSizePt: defaultFontSizePt(size),
+                  fontWeight: undefined
+                }, ['size', 'fontSizePt']);
+              }}
+            >
+              {TEXT_STYLE_PRESETS.map((preset) => (
+                <option key={preset.id} value={preset.id}>{preset.label}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <div className="text-format-row">
+          <div className="text-format-group" role="group" aria-label="Начертание">
+            <button
+              type="button"
+              className={`text-format-btn ${bold ? 'active' : ''}`}
+              title="Жирный"
+              aria-pressed={bold}
+              onClick={() => patchFormat({ fontWeight: bold ? 'normal' : 'bold' }, ['fontWeight'])}
+            >
+              <Bold size={16} />
+            </button>
+            <button
+              type="button"
+              className={`text-format-btn italic-preview ${italic ? 'active' : ''}`}
+              title="Курсив"
+              aria-pressed={italic}
+              onClick={() => patchFormat({ fontStyle: italic ? 'normal' : 'italic' }, ['fontStyle'])}
+            >
+              <Italic size={16} />
+            </button>
+            <button
+              type="button"
+              className={`text-format-btn underline-preview ${zone.underline ? 'active' : ''}`}
+              title="Подчёркнутый"
+              aria-pressed={Boolean(zone.underline)}
+              onClick={() => patchFormat({ underline: !zone.underline }, ['underline'])}
+            >
+              <Underline size={16} />
+            </button>
+          </div>
+          <div className="text-format-group" role="group" aria-label="Выравнивание">
+            <button
+              type="button"
+              className={`text-format-btn ${currentAlign === 'left' ? 'active' : ''}`}
+              title="Слева"
+              aria-pressed={currentAlign === 'left'}
+              onClick={() => patchFormat({ align: 'left' }, ['align'])}
+            >
+              <AlignLeft size={16} />
+            </button>
+            <button
+              type="button"
+              className={`text-format-btn ${currentAlign === 'center' ? 'active' : ''}`}
+              title="По центру"
+              aria-pressed={currentAlign === 'center'}
+              onClick={() => patchFormat({ align: 'center' }, ['align'])}
+            >
+              <AlignCenter size={16} />
+            </button>
+            <button
+              type="button"
+              className={`text-format-btn ${currentAlign === 'right' ? 'active' : ''}`}
+              title="Справа"
+              aria-pressed={currentAlign === 'right'}
+              onClick={() => patchFormat({ align: 'right' }, ['align'])}
+            >
+              <AlignRight size={16} />
+            </button>
+            <button
+              type="button"
+              className={`text-format-btn ${currentAlign === 'justify' ? 'active' : ''}`}
+              title="По ширине"
+              aria-pressed={currentAlign === 'justify'}
+              onClick={() => patchFormat({ align: 'justify' }, ['align'])}
+            >
+              <AlignJustify size={16} />
+            </button>
+          </div>
+        </div>
+        <label className="field compact">
+          <span>Цвет текста</span>
+          <ColorControl
+            value={currentTextColor}
+            swatches={colorSwatches}
+            recentCustomColors={recentCustomColors}
+            onChange={(color) => onChange(withStyle(zone, { textColor: color }))}
+            onRememberCustomColor={onRememberCustomColor}
+          />
         </label>
-      </div>
+        <label className="field compact">
+          <span>Выделение</span>
+          <ColorControl
+            value={currentHighlight}
+            swatches={markerSwatches}
+            recentCustomColors={recentCustomColors}
+            onChange={(color) => patchFormat({ highlightColor: color === 'transparent' ? undefined : color }, ['highlightColor'])}
+            onRememberCustomColor={onRememberCustomColor}
+            allowTransparent
+          />
+        </label>
+      </section>
       <DesignControls
         zone={zone}
         onChange={(nextZone) => onChange(nextZone as TextZone)}
         recentCustomColors={recentCustomColors}
         onRememberCustomColor={onRememberCustomColor}
+        text={false}
+        textSwatches={colorSwatches}
         actionBeforeReset={onApplyZoneStyleToSameRole ? {
           label: 'Применить ко всем таким блокам в документе',
           onClick: () => onApplyZoneStyleToSameRole(zone)
         } : undefined}
+        onReset={() => onChange({
+          ...zone,
+          fontFamily: undefined,
+          fontSizePt: undefined,
+          fontWeight: undefined,
+          fontStyle: undefined,
+          underline: undefined,
+          highlightColor: undefined,
+          style: {},
+          styleOverrides: undefined
+        })}
       />
     </>
   );
@@ -328,7 +630,7 @@ function ImageEditor({
 }) {
   const [error, setError] = useState('');
   const [dragActive, setDragActive] = useState(false);
-  const defaultFit = zone.imageRole === 'product' ? 'contain' : 'cover';
+  const defaultFit = zone.imageRole === 'product' ? 'contain' : 'fill';
   const currentFit = zone.fit ?? defaultFit;
   const isLogo = isLogoZone(zone);
 
@@ -375,7 +677,16 @@ function ImageEditor({
           onDragLeave={() => setDragActive(false)}
           onDrop={handleDrop}
         >
-          <div className={`zone-image fit-${currentFit}`} style={{ backgroundImage: `url("${zone.src}")`, backgroundColor: zone.style?.backgroundColor ?? 'transparent' }} />
+          {zone.src ? (
+            <img
+              className={`zone-image fit-${currentFit === 'contain' ? 'contain' : 'fill'}`}
+              src={zone.src}
+              alt={zone.alt}
+              style={{ backgroundColor: zone.style?.backgroundColor ?? 'transparent' }}
+            />
+          ) : (
+            <div className={`zone-image fit-${currentFit === 'contain' ? 'contain' : 'fill'}`} style={{ backgroundColor: zone.style?.backgroundColor ?? 'transparent' }} />
+          )}
           <div className="drop-image-hint">
             <ImageUp size={18} />
             <span>Перетащите файл сюда</span>
@@ -710,7 +1021,7 @@ function IconZoneEditor({ zone, onChange, recentCustomColors, onRememberCustomCo
   );
 }
 
-export function RightEditorPanel({ zone, onChange, recentCustomColors, onRememberCustomColor, onApplyLogoStyleToAllPages, onApplyZoneStyleToSameRole }: RightEditorPanelProps) {
+export function RightEditorPanel({ zone, onChange, recentCustomColors, onRememberCustomColor, onApplyLogoStyleToAllPages, onApplyZoneStyleToSameRole, documentColors = defaultDocumentColors }: RightEditorPanelProps) {
   if (!zone) {
     return (
       <section className="right-panel empty-editor">
@@ -748,6 +1059,7 @@ export function RightEditorPanel({ zone, onChange, recentCustomColors, onRemembe
           recentCustomColors={recentCustomColors}
           onRememberCustomColor={onRememberCustomColor}
           onApplyZoneStyleToSameRole={onApplyZoneStyleToSameRole}
+          documentColors={documentColors}
         />
       )}
       {zone.kind === 'divider' && (

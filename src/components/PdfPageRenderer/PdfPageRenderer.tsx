@@ -3,7 +3,8 @@ import {
   PointerEvent as ReactPointerEvent,
   useState
 } from 'react';
-import { Accent, DocumentRenderSettings, EditableZone, IconZone, ImageZone, Page, PageFormat, TableZone, TextPalette, ThemeMode, ZoneStyleOverrideKey } from '../../types/project';
+import { Accent, DocumentRenderSettings, EditableZone, IconZone, ImageZone, Page, PageFormat, TableZone, TextPalette, TextZone, ThemeMode, ZoneStyleOverrideKey } from '../../types/project';
+import { fontCss } from '../../data/textEditor';
 import { CatalogIconGlyph } from '../../data/iconLibrary';
 import { formatMoney, rowTotal } from '../../utils/calculations';
 import { getTemplate } from '../../data/pageTemplates';
@@ -69,6 +70,14 @@ function styleOverride(page: Page, zone: EditableZone, key: ZoneStyleOverrideKey
   if (key === 'fit' && zone.kind === 'image' && template.kind === 'image') return zone.fit !== template.fit;
   if (key === 'align' && zone.kind === 'text' && template.kind === 'text') return zone.align !== template.align;
   if (key === 'size' && zone.kind === 'text' && template.kind === 'text') return zone.size !== template.size;
+  if (zone.kind === 'text' && template.kind === 'text') {
+    if (key === 'fontFamily') return zone.fontFamily !== template.fontFamily;
+    if (key === 'fontSizePt') return zone.fontSizePt !== template.fontSizePt;
+    if (key === 'fontWeight') return zone.fontWeight !== template.fontWeight;
+    if (key === 'fontStyle') return zone.fontStyle !== template.fontStyle;
+    if (key === 'underline') return zone.underline !== template.underline;
+    if (key === 'highlightColor') return zone.highlightColor !== template.highlightColor;
+  }
   if (key === 'dividerThickness' && zone.kind === 'divider' && template.kind === 'divider') {
     return zone.layout.h !== template.layout.h || zone.layout.w !== template.layout.w;
   }
@@ -160,9 +169,10 @@ function renderTable(zone: TableZone) {
 }
 
 function imageFit(zone: ImageZone) {
-  if (zone.fit) return zone.fit;
+  if (zone.fit === 'contain') return 'contain';
+  if (zone.fit === 'cover' || zone.fit === 'fill') return 'fill';
   if (zone.imageRole === 'product') return 'contain';
-  return 'cover';
+  return 'fill';
 }
 
 function iconPixelSize(zone: IconZone) {
@@ -222,12 +232,15 @@ function ZoneView({
   }
 
   if (zone.kind === 'image') {
+    if (!zone.src) {
+      return <div className={`zone-image fit-${imageFit(zone)}`} role="img" aria-label={zone.alt} />;
+    }
     return (
-      <div
+      <img
         className={`zone-image fit-${imageFit(zone)}`}
-        role="img"
-        aria-label={zone.alt}
-        style={{ backgroundImage: `url("${zone.src}")` }}
+        src={zone.src}
+        alt={zone.alt}
+        draggable={false}
       />
     );
   }
@@ -295,71 +308,98 @@ function ZoneView({
   }
 
   if (zone.kind === 'features') {
-  if (!editing) {
+    if (!editing) {
+      return (
+        <div className="feature-list">
+          {zone.items.map((item, index) => (
+            <div key={`${item}-${index}`}>
+              <span>{index + 1}</span>
+              {item}
+            </div>
+          ))}
+        </div>
+      );
+    }
+
     return (
-      <div className="feature-list">
+      <div
+        className="feature-list editable-features"
+        onPointerDown={(event) => event.stopPropagation()}
+        onClick={(event) => event.stopPropagation()}
+      >
         {zone.items.map((item, index) => (
-          <div key={`${item}-${index}`}>
+          <div key={`${zone.id}-${index}`}>
             <span>{index + 1}</span>
-            {item}
+            <input
+              value={item}
+              onChange={(event) => {
+                const items = [...zone.items];
+                items[index] = event.target.value;
+                onFeaturesChange?.(items);
+              }}
+              onPointerDown={(event) => event.stopPropagation()}
+              onClick={(event) => event.stopPropagation()}
+              onBlur={() => onFinishTextEditing?.()}
+            />
           </div>
         ))}
       </div>
     );
   }
 
-  return (
-    <div
-      className="feature-list editable-features"
-      onPointerDown={(event) => event.stopPropagation()}
-      onClick={(event) => event.stopPropagation()}
-    >
-      {zone.items.map((item, index) => (
-        <div key={`${zone.id}-${index}`}>
-          <span>{index + 1}</span>
-
-         <input
-  value={item}
-  onChange={(event) => {
-    const items = [...zone.items];
-    items[index] = event.target.value;
-    onFeaturesChange?.(items);
-  }}
-  onPointerDown={(event) => {
-    event.stopPropagation();
-  }}
-  onClick={(event) => {
-    event.stopPropagation();
-  }}
-  onBlur={() => {
-    onFinishTextEditing?.();
-  }}
-/>
-        </div>
-      ))}
-    </div>
-  );
-}
-
   if (editing && zone.kind === 'text') {
     return (
       <textarea
-  className="zone-text-editor"
-  value={zone.value}
-  autoFocus
-  onChange={(event) => onTextChange?.(event.target.value)}
-  onPointerDown={(event) => event.stopPropagation()}
-  onClick={(event) => event.stopPropagation()}
-  onBlur={() => onFinishTextEditing?.()}
-/>
+        className={`zone-text-editor ${textZoneClassName(zone)}`}
+        style={textZoneStyle(zone)}
+        value={zone.value}
+        autoFocus
+        onChange={(event) => onTextChange?.(event.target.value)}
+        onPointerDown={(event) => event.stopPropagation()}
+        onClick={(event) => event.stopPropagation()}
+        onBlur={() => onFinishTextEditing?.()}
+      />
     );
   }
 
+  return renderTextZone(zone);
+}
+
+function textZoneClassName(zone: TextZone) {
+  const classes = [
+    'text-zone',
+    `text-${zone.size ?? 'body'}`,
+    `text-tone-${textTone(zone)}`,
+    `align-${zone.align ?? 'left'}`
+  ];
+  if (zone.fontFamily) classes.push(`font-${zone.fontFamily}`);
+  if (zone.fontWeight === 'bold') classes.push('text-bold');
+  if (zone.fontWeight === 'normal') classes.push('text-regular');
+  if (zone.fontStyle === 'italic') classes.push('text-italic');
+  if (zone.underline) classes.push('text-underline');
+  if (zone.highlightColor && zone.highlightColor !== 'transparent') classes.push('has-highlight');
+  return classes.join(' ');
+}
+
+function textZoneStyle(zone: TextZone): CSSProperties {
+  return {
+    fontFamily: zone.fontFamily ? fontCss(zone.fontFamily) : undefined,
+    fontSize: zone.fontSizePt ? `${zone.fontSizePt}pt` : undefined,
+    fontWeight: zone.fontWeight === 'bold' ? 700 : zone.fontWeight === 'normal' ? 400 : undefined,
+    fontStyle: zone.fontStyle === 'italic' ? 'italic' : zone.fontStyle === 'normal' ? 'normal' : undefined,
+    textDecoration: zone.underline ? 'underline' : undefined
+  };
+}
+
+function renderTextZone(zone: TextZone) {
+  const highlight = zone.highlightColor && zone.highlightColor !== 'transparent' ? zone.highlightColor : undefined;
+  const content = highlight
+    ? <span className="text-highlight-mark" style={{ backgroundColor: highlight }}>{zone.value}</span>
+    : zone.value;
+
   return (
-    <div
-      className={`text-zone text-${zone.size ?? 'body'} text-tone-${textTone(zone)} align-${zone.align ?? 'left'}`}
-    >
-      {zone.value}
+    <div className={textZoneClassName(zone)} style={textZoneStyle(zone)}>
+      {content}
     </div>
   );
 }
@@ -420,7 +460,8 @@ const {
 
   return (
     <article
-      className={`pdf-page template-${page.templateId} format-${resolvedPageFormat} ${layoutEditMode ? 'layout-grid-active' : ''}`}data-document-theme={resolvedDocumentTheme}
+      className={`pdf-page template-${page.templateId} format-${resolvedPageFormat} ${layoutEditMode ? 'layout-grid-active' : ''}`}
+      data-document-theme={resolvedDocumentTheme}
       data-document-accent={resolvedDocumentAccent}
       data-text-palette={resolvedDocumentTextPalette}
       data-export-page={exportMode ? 'true' : undefined}

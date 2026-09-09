@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ArrowLeft, ArrowRight, Copy, Plus, Trash2 } from 'lucide-react';
 import { DocumentRenderSettings, Page } from '../../types/project';
+import { AddPageModal } from '../modals/AddPageModal';
 import { PdfPageRenderer } from '../PdfPageRenderer/PdfPageRenderer';
 
 type DocumentPageStripProps = {
@@ -12,13 +13,15 @@ type DocumentPageStripProps = {
   onDelete: (pageId: string) => void;
   onMove: (pageId: string, direction: -1 | 1) => void;
   onReorder: (sourcePageId: string, targetPageId: string) => void;
-  onAddEmpty: () => void;
+  onAddPage: (templateId: string) => void;
+  onAddBlankPage?: () => void;
 };
 
 export function DocumentPageStrip(props: DocumentPageStripProps) {
-  const { pages, renderSettings, selectedPageId, onSelectPage, onDuplicate, onDelete, onMove, onReorder, onAddEmpty } = props;
+  const { pages, renderSettings, selectedPageId, onSelectPage, onDuplicate, onDelete, onMove, onReorder, onAddPage, onAddBlankPage } = props;
   const [draggingPageId, setDraggingPageId] = useState<string | null>(null);
   const [dropTargetPageId, setDropTargetPageId] = useState<string | null>(null);
+  const [isCatalogOpen, setCatalogOpen] = useState(false);
 
   return (
     <section className="page-strip">
@@ -75,11 +78,25 @@ export function DocumentPageStrip(props: DocumentPageStripProps) {
             </div>
           </article>
         ))}
-        <button className="add-page-card" onClick={onAddEmpty}>
+        <button
+          className="add-page-card"
+          type="button"
+          onClick={() => setCatalogOpen(true)}
+          aria-haspopup="dialog"
+          aria-expanded={isCatalogOpen}
+        >
           <Plus size={22} />
           <span>Добавить страницу</span>
         </button>
       </div>
+      {isCatalogOpen && (
+        <AddPageModal
+          renderSettings={renderSettings}
+          onAddPage={onAddPage}
+          onAddBlankPage={onAddBlankPage}
+          onClose={() => setCatalogOpen(false)}
+        />
+      )}
     </section>
   );
 }

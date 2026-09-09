@@ -4,7 +4,7 @@
   z-index: 50;
   display: grid;
   place-items: center;
-  padding: 28px;
+  padding: calc(var(--topbar-height, 68px) + 12px) 28px 28px;
   background: rgba(20, 20, 25, 0.48);
 }
 

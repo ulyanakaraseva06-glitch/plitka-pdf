@@ -3,7 +3,7 @@ import { clone, createId } from '../utils/clone';
 import { defaultCompanyProfile } from './defaultTexts';
 import { getTemplate } from './pageTemplates';
 import type { DocumentSchemeId } from './documentSchemes';
-import { Project, PresetId, Page, CompanyProfile, TableRow, IconZone } from '../types/project';
+import { Project, PresetId, Page, PageFormat, CompanyProfile, TableRow, IconZone } from '../types/project';
 
 type PresetDefinition = {
   label: string;
@@ -11,6 +11,7 @@ type PresetDefinition = {
   templateIds: string[];
   libraryStatus?: 'core' | 'legacy' | 'hidden';
   preferredSchemeId?: DocumentSchemeId;
+  pageFormat?: PageFormat;
   showLogos?: boolean;
   companyProfile?: Partial<CompanyProfile>;
   customize?: (project: Project) => Project;
@@ -91,6 +92,7 @@ function patchPagesByTemplate(project: Project, templateId: string, patch: (page
 
 const visiblePresetIds: PresetId[] = [
   'premium_catalog',
+  'outdoor_collection',
   'dealer_presentation',
   'client_offer',
   'price_list',
@@ -105,6 +107,7 @@ const presetDescriptions: Record<PresetId, string> = {
   technical_package: 'Техническая подборка с таблицами, форматами и спецификацией.',
   moodboard_presentation: 'Moodboard-сценарий для подбора фактур и визуального сравнения.',
   premium_catalog: 'Премиальная подача коллекции с историей, сценами и финальным контактом.',
+  outdoor_collection: 'Каталог уличной плитки: сцены коллекций, ассортимент 20 мм и системы укладки.',
   dealer_presentation: 'Рабочая презентация для дилеров: материалы, SKU, прайс и упаковка.',
   client_offer: 'Короткое КП для клиента с кейсом, сценами и итоговым предложением.',
   empty: 'Пустой документ без стартовых страниц.'
@@ -118,6 +121,7 @@ const presetAudiences: Record<PresetId, string> = {
   technical_package: 'менеджер / дилер',
   moodboard_presentation: 'клиент / проект',
   premium_catalog: 'бренд / клиент',
+  outdoor_collection: 'бренд / дилер',
   dealer_presentation: 'дилер / менеджер',
   client_offer: 'клиент',
   empty: 'с нуля'
@@ -171,6 +175,16 @@ const clientProfile: Partial<CompanyProfile> = {
   messenger: 'Telegram / WhatsApp',
   email: 'hello@vilray.studio',
   website: 'vilray.studio',
+  address: 'Москва'
+};
+
+const outdoorProfile: Partial<CompanyProfile> = {
+  companyName: 'Vilray Studio',
+  managerName: 'Отдел outdoor-коллекций',
+  phone: '+7 (495) 120-24-26',
+  messenger: '@vilray_catalog',
+  email: 'outdoor@vilray.studio',
+  website: 'vilray.studio/outdoor',
   address: 'Москва'
 };
 
@@ -567,6 +581,25 @@ const presetDefinitions: Record<PresetId, PresetDefinition> = {
     companyProfile: premiumProfile,
     customize: customizePremiumCatalog
   },
+  outdoor_collection: {
+    label: 'Каталог outdoor-коллекции',
+    projectTitle: 'Outdoor Collection Catalogue',
+    libraryStatus: 'core',
+    templateIds: [
+      'catalog_outdoor_collection_scene',
+      'catalog_outdoor_copy_column',
+      'catalog_outdoor_dual_scene',
+      'catalog_outdoor_sku_quad',
+      'catalog_outdoor_sku_mixed',
+      'catalog_outdoor_sku_planks',
+      'catalog_outdoor_install_cards',
+      'catalog_outdoor_install_guide'
+    ],
+    preferredSchemeId: 'warm_catalog',
+    pageFormat: 'a4_landscape',
+    showLogos: false,
+    companyProfile: outdoorProfile
+  },
   dealer_presentation: {
     label: 'Дилерская презентация',
     projectTitle: 'Sierra Stone Dealer Presentation',
@@ -649,6 +682,7 @@ export function createPageFromTemplate(templateId: string, order: number): Page 
     zones: clone(template.defaultZones)
   };
 }
+
 export function createBlankPage(order: number): Page {
   return {
     id: createId('page'),
@@ -658,6 +692,7 @@ export function createBlankPage(order: number): Page {
     zones: {}
   };
 }
+
 export function createProject(preset: PresetId = 'mini_catalog'): Project {
   const now = new Date().toISOString();
   const definition = presetDefinitions[preset];
@@ -665,7 +700,7 @@ export function createProject(preset: PresetId = 'mini_catalog'): Project {
     id: createId('project'),
     title: definition.projectTitle,
     preset,
-    pageFormat: 'a4_portrait',
+    pageFormat: definition.pageFormat ?? 'a4_portrait',
     documentTheme: 'light',
     documentAccent: 'purple',
     documentAccentColor: undefined,

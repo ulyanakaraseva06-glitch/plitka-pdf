@@ -371,6 +371,8 @@ export function TopBar(props: TopBarProps) {
       </div>
 
       <div className="top-actions">
+        <a className="btn btn-ghost top-page-link" href="/help/" target="_blank" rel="noreferrer">Помощь</a>
+        <a className="btn btn-ghost top-page-link" href="/about/" target="_blank" rel="noreferrer">О сервисе</a>
         {actions.map((action) => (
           <button
             key={action.label}

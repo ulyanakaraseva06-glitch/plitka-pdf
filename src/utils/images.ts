@@ -47,5 +47,7 @@ export async function compressImage(file: File, options: CompressImageOptions = 
   const context = canvas.getContext('2d');
   if (!context) return dataUrl;
   context.drawImage(image, 0, 0, width, height);
-  return canvas.toDataURL(options.outputType ?? 'image/jpeg', options.quality ?? 0.9);
+  const keepPng = (options.outputType ?? file.type) === 'image/png';
+  if (keepPng) return canvas.toDataURL('image/png');
+  return canvas.toDataURL(options.outputType ?? 'image/jpeg', options.quality ?? 0.92);
 }

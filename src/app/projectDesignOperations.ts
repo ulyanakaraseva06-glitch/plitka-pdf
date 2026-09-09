@@ -69,7 +69,16 @@ export function hasManualDesignOverride(page: Page, zone: EditableZone, scope: D
   if (styleValue(zone, 'backgroundColor') !== styleValue(templateZone, 'backgroundColor')) return true;
   if (styleValue(zone, 'borderRadius') !== styleValue(templateZone, 'borderRadius')) return true;
   if (styleValue(zone, 'shadow') !== styleValue(templateZone, 'shadow')) return true;
-  if (zone.kind === 'text' && templateZone.kind === 'text') return zone.size !== templateZone.size || zone.align !== templateZone.align;
+  if (zone.kind === 'text' && templateZone.kind === 'text') {
+    return zone.size !== templateZone.size
+      || zone.align !== templateZone.align
+      || zone.fontFamily !== templateZone.fontFamily
+      || zone.fontSizePt !== templateZone.fontSizePt
+      || zone.fontWeight !== templateZone.fontWeight
+      || zone.fontStyle !== templateZone.fontStyle
+      || zone.underline !== templateZone.underline
+      || zone.highlightColor !== templateZone.highlightColor;
+  }
   if (zone.kind === 'image' && templateZone.kind === 'image') return zone.fit !== templateZone.fit;
   if (zone.kind === 'divider' && templateZone.kind === 'divider') return dividerThickness(zone) !== dividerThickness(templateZone);
   return false;
@@ -152,6 +161,12 @@ export function applyZoneStyleToProjectRole(source: Project, sourceZone: Editabl
             ...zone,
             size: sourceZone.size,
             align: sourceZone.align,
+            fontFamily: sourceZone.fontFamily,
+            fontSizePt: sourceZone.fontSizePt,
+            fontWeight: sourceZone.fontWeight,
+            fontStyle: sourceZone.fontStyle,
+            underline: sourceZone.underline,
+            highlightColor: sourceZone.highlightColor,
             style: {
               textColor: sourceZone.style?.textColor,
               backgroundColor: sourceZone.style?.backgroundColor,
@@ -162,6 +177,12 @@ export function applyZoneStyleToProjectRole(source: Project, sourceZone: Editabl
               ...(zone.styleOverrides ?? {}),
               size: true,
               align: true,
+              fontFamily: true,
+              fontSizePt: true,
+              fontWeight: true,
+              fontStyle: true,
+              underline: true,
+              highlightColor: true,
               textColor: true,
               backgroundColor: true,
               borderRadius: true,
@@ -227,6 +248,12 @@ export function resetProjectDesignToTemplateDefaults(source: Project): Project {
               ...zone,
               size: defaultText?.size ?? zone.size,
               align: defaultText?.align,
+              fontFamily: defaultText?.fontFamily,
+              fontSizePt: defaultText?.fontSizePt,
+              fontWeight: defaultText?.fontWeight,
+              fontStyle: defaultText?.fontStyle,
+              underline: defaultText?.underline,
+              highlightColor: defaultText?.highlightColor,
               style: baseStyle,
               styleOverrides: undefined
             } satisfies TextZone];

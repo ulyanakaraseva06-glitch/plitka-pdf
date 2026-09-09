@@ -4,8 +4,8 @@ import { templatePreviewPage } from '../components/PageTemplateCard/PageTemplate
 
 describe('pageTemplates registry', () => {
   it('exposes the compact visible library', () => {
-    expect(pageTemplates).toHaveLength(34);
-    expect(allPageTemplates).toHaveLength(57);
+    expect(pageTemplates).toHaveLength(42);
+    expect(allPageTemplates).toHaveLength(65);
     expect(allPageTemplates.filter((template) => template.libraryStatus === 'legacy')).toHaveLength(3);
     expect(allPageTemplates.filter((template) => template.libraryStatus === 'hidden')).toHaveLength(20);
   });
@@ -60,6 +60,36 @@ describe('pageTemplates registry', () => {
     expect(getTemplate('catalog_scene_companion_products').libraryStatus).toBe('hidden');
     expect(getTemplate('catalog_color_variants_matrix').libraryStatus).toBe('hidden');
     expect(getTemplate('contacts_qr_placeholder').libraryStatus).toBe('hidden');
+  });
+
+  it('registers the outdoor collection template set', () => {
+    const ids = [
+      'catalog_outdoor_collection_scene',
+      'catalog_outdoor_copy_column',
+      'catalog_outdoor_dual_scene',
+      'catalog_outdoor_sku_quad',
+      'catalog_outdoor_sku_mixed',
+      'catalog_outdoor_sku_planks',
+      'catalog_outdoor_install_cards',
+      'catalog_outdoor_install_guide'
+    ];
+
+    expect(ids.map((id) => getTemplate(id).id)).toEqual(ids);
+    expect(ids.every((id) => getTemplate(id).libraryStatus === 'core')).toBe(true);
+  });
+
+  it('keeps outdoor collection zones inside the page bounds', () => {
+    const outdoorTemplates = allPageTemplates.filter((item) => item.id.includes('_outdoor_'));
+
+    expect(outdoorTemplates.length).toBeGreaterThanOrEqual(8);
+    for (const item of outdoorTemplates) {
+      for (const zone of Object.values(item.defaultZones)) {
+        expect(zone.layout.x).toBeGreaterThanOrEqual(0);
+        expect(zone.layout.y).toBeGreaterThanOrEqual(0);
+        expect(zone.layout.x + zone.layout.w).toBeLessThanOrEqual(100);
+        expect(zone.layout.y + zone.layout.h).toBeLessThanOrEqual(100);
+      }
+    }
   });
 
   it('keeps reference-derived zones inside the page bounds', () => {

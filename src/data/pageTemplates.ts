@@ -6,6 +6,7 @@ import { catalogInteriorTemplates } from './pageTemplates/catalogInterior';
 import { catalogVisualFocusTemplates } from './pageTemplates/catalogVisualFocus';
 import { catalogSpecsTemplates } from './pageTemplates/catalogSpecs';
 import { catalogMoodboardTemplates } from './pageTemplates/catalogMoodboard';
+import { catalogOutdoorTemplates } from './pageTemplates/catalogOutdoor';
 import { tableTemplates } from './pageTemplates/table';
 import { priceTemplates } from './pageTemplates/price';
 import { contactsTemplates } from './pageTemplates/contacts';
@@ -20,6 +21,7 @@ const allTemplateRegistry = new Map(
     ...catalogVisualFocusTemplates,
     ...catalogSpecsTemplates,
     ...catalogMoodboardTemplates,
+    ...catalogOutdoorTemplates,
     ...tableTemplates,
     ...priceTemplates,
     ...contactsTemplates,
@@ -54,6 +56,14 @@ const coreTemplateIds = new Set<string>([
   'catalog_surface_finish_detail',
   'catalog_application_spec',
   'catalog_reference_outdoor_system',
+  'catalog_outdoor_collection_scene',
+  'catalog_outdoor_copy_column',
+  'catalog_outdoor_dual_scene',
+  'catalog_outdoor_sku_quad',
+  'catalog_outdoor_sku_mixed',
+  'catalog_outdoor_sku_planks',
+  'catalog_outdoor_install_cards',
+  'catalog_outdoor_install_guide',
   'catalog_brand_technology_story',
   'table_collection_technical_sheet',
   'table_packaging_price_matrix',
@@ -107,6 +117,14 @@ const allTemplateIds = [
   'catalog_reference_color_story',
   'catalog_reference_outdoor_story',
   'catalog_reference_outdoor_system',
+  'catalog_outdoor_collection_scene',
+  'catalog_outdoor_copy_column',
+  'catalog_outdoor_dual_scene',
+  'catalog_outdoor_sku_quad',
+  'catalog_outdoor_sku_mixed',
+  'catalog_outdoor_sku_planks',
+  'catalog_outdoor_install_cards',
+  'catalog_outdoor_install_guide',
   'catalog_reference_dark_index',
   'catalog_brand_technology_story',
   'catalog_collection_comparison',
@@ -212,7 +230,18 @@ export const categories = [
 
 const templateIndex = new Map(allPageTemplates.map((template) => [template.id, template] as const));
 
+const blankPageTemplate: PageTemplate = {
+  id: 'blank',
+  category: 'catalog',
+  title: 'Пустая страница',
+  description: 'Пустая страница с сеткой и виджетами',
+  thumbnail: '',
+  defaultZones: {},
+  libraryStatus: 'hidden'
+};
+
 export function getTemplate(templateId: string): PageTemplate {
+  if (templateId === 'blank') return blankPageTemplate;
   const template = templateIndex.get(templateId);
   if (!template) throw new Error(`Template not found: ${templateId}`);
   return template;

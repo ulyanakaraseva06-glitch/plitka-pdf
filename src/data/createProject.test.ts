@@ -6,20 +6,22 @@ describe('createProject presets', () => {
     expect(presetLabels.premium_catalog).toBe('Премиальный каталог коллекции');
     expect(presetLabels.dealer_presentation).toBe('Дилерская презентация');
     expect(presetLabels.client_offer).toBe('КП для клиента');
-    expect(Object.keys(presetLabels)).toHaveLength(5);
+    expect(presetLabels.outdoor_collection).toBe('Каталог outdoor-коллекции');
+    expect(Object.keys(presetLabels)).toHaveLength(6);
     expect(getPresetLabel('mini_catalog')).toBe('Мини-каталог');
   });
 
   it('exposes visible preset summaries for the UI', () => {
-    expect(visiblePresetSummaries).toHaveLength(5);
+    expect(visiblePresetSummaries).toHaveLength(6);
     expect(visiblePresetSummaries.map((item) => item.id)).toEqual([
       'premium_catalog',
+      'outdoor_collection',
       'dealer_presentation',
       'client_offer',
       'price_list',
       'selection'
     ]);
-    expect(visiblePresetSummaries.map((item) => item.pageCount)).toEqual([8, 9, 7, 7, 8]);
+    expect(visiblePresetSummaries.map((item) => item.pageCount)).toEqual([8, 8, 9, 7, 7, 8]);
     expect(visiblePresetSummaries.every((item) => item.description.length > 0)).toBe(true);
     expect(visiblePresetSummaries.every((item) => item.audience.length > 0)).toBe(true);
   });
@@ -96,6 +98,31 @@ describe('createProject presets', () => {
     expect(getPresetPreferredSchemeId('premium_catalog')).toBe('minimal');
     expect(getPresetPreferredSchemeId('dealer_presentation')).toBe('dealer');
     expect(getPresetPreferredSchemeId('client_offer')).toBe('warm_catalog');
+    expect(getPresetPreferredSchemeId('outdoor_collection')).toBe('warm_catalog');
+  });
+
+  it('builds the outdoor collection catalogue from dedicated page templates', () => {
+    const project = createProject('outdoor_collection');
+
+    expect(project.title).toBe('Outdoor Collection Catalogue');
+    expect(project.pageFormat).toBe('a4_landscape');
+    expect(project.showLogos).toBe(false);
+    expect(project.pages).toHaveLength(8);
+    expect(project.pages.map((page) => page.templateId)).toEqual([
+      'catalog_outdoor_collection_scene',
+      'catalog_outdoor_copy_column',
+      'catalog_outdoor_dual_scene',
+      'catalog_outdoor_sku_quad',
+      'catalog_outdoor_sku_mixed',
+      'catalog_outdoor_sku_planks',
+      'catalog_outdoor_install_cards',
+      'catalog_outdoor_install_guide'
+    ]);
+
+    const firstHeading = project.pages[0].zones.heading;
+    expect(firstHeading.kind).toBe('text');
+    if (firstHeading.kind !== 'text') throw new Error('Expected text zone');
+    expect(firstHeading.value).toBe('Классический камень');
   });
 
   it('keeps the remaining legacy pages tied to active scenarios', () => {

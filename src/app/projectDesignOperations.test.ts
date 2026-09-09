@@ -208,6 +208,12 @@ describe('projectDesignOperations', () => {
       ...sourceZone,
       size: 'hero',
       align: 'right',
+      fontFamily: 'palatino',
+      fontSizePt: 28,
+      fontWeight: 'bold',
+      fontStyle: 'italic',
+      underline: true,
+      highlightColor: '#f7f4ef',
       style: { textColor: '#abcdef', backgroundColor: '#101010', borderRadius: 12, shadow: 'soft' }
     });
     const nextHeading = nextProject.pages[1].zones.heading2;
@@ -219,7 +225,14 @@ describe('projectDesignOperations', () => {
     }
     expect(nextHeading.size).toBe('hero');
     expect(nextHeading.align).toBe('right');
+    expect(nextHeading.fontFamily).toBe('palatino');
+    expect(nextHeading.fontSizePt).toBe(28);
+    expect(nextHeading.fontWeight).toBe('bold');
+    expect(nextHeading.fontStyle).toBe('italic');
+    expect(nextHeading.underline).toBe(true);
+    expect(nextHeading.highlightColor).toBe('#f7f4ef');
     expect(nextHeading.style?.textColor).toBe('#abcdef');
+    expect(nextHeading.styleOverrides?.fontFamily).toBe(true);
     expect(nextHeading.styleOverrides?.textColor).toBe(true);
 
     expect(nextBody.kind).toBe('text');
@@ -227,6 +240,53 @@ describe('projectDesignOperations', () => {
       throw new Error('Expected text zone');
     }
     expect(nextBody.style?.textColor).toBe('#222222');
+  });
+
+  it('resets typography overrides back to template defaults', () => {
+    const { project, page, zone } = findTextZoneProject();
+    const nextProject = {
+      ...project,
+      pages: project.pages.map((currentPage) => currentPage.id === page.id
+        ? {
+            ...currentPage,
+            zones: {
+              ...currentPage.zones,
+              [zone.id]: {
+                ...zone,
+                fontFamily: 'arial',
+                fontSizePt: 18,
+                fontWeight: 'normal',
+                fontStyle: 'italic',
+                underline: true,
+                highlightColor: '#fff8ed',
+                styleOverrides: {
+                  ...(zone.styleOverrides ?? {}),
+                  fontFamily: true,
+                  fontSizePt: true,
+                  fontWeight: true,
+                  fontStyle: true,
+                  underline: true,
+                  highlightColor: true
+                }
+              } satisfies TextZone
+            }
+          }
+        : currentPage)
+    };
+
+    const resetProject = prepareProjectForTopDesignChange(nextProject, 'all');
+    const resetZone = resetProject.pages.find((item) => item.id === page.id)?.zones[zone.id];
+    const templateZone = getTemplate(page.templateId).defaultZones[zone.id];
+
+    expect(resetZone?.kind).toBe('text');
+    if (resetZone?.kind !== 'text' || templateZone?.kind !== 'text') {
+      throw new Error('Expected text zones');
+    }
+    expect(resetZone.fontFamily).toBe(templateZone.fontFamily);
+    expect(resetZone.fontSizePt).toBe(templateZone.fontSizePt);
+    expect(resetZone.underline).toBe(templateZone.underline);
+    expect(resetZone.highlightColor).toBe(templateZone.highlightColor);
+    expect(resetZone.styleOverrides).toBeUndefined();
   });
 
   it('applies logo image style to every logo zone in the project', () => {

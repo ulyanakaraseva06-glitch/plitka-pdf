@@ -16,7 +16,9 @@ export default defineConfig({
         app: resolve(rootDir, 'app/index.html'),
         analyticsAdmin: resolve(rootDir, 'admin/analytics/index.html'),
         terms: resolve(rootDir, 'terms/index.html'),
-        privacy: resolve(rootDir, 'privacy/index.html')
+        privacy: resolve(rootDir, 'privacy/index.html'),
+        help: resolve(rootDir, 'help/index.html'),
+        about: resolve(rootDir, 'about/index.html')
       }
     }
   }

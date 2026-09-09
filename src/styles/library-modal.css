@@ -1,7 +1,7 @@
 .library-modal {
   position: relative;
   width: min(980px, 96vw);
-  max-height: 92vh;
+  max-height: calc(100vh - var(--topbar-height, 68px) - 40px);
   overflow: auto;
   padding: 32px 34px 28px;
   border-radius: 8px;

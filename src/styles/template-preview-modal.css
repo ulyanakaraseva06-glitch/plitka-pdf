@@ -1,15 +1,26 @@
+.template-preview-modal-backdrop {
+  align-items: start;
+  justify-items: center;
+  padding: calc(var(--topbar-height, 68px) + 14px) 28px 20px;
+}
+
 .template-preview-modal {
   position: relative;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
   gap: 14px;
   width: min(820px, 94vw);
-  height: min(92vh, 980px);
+  height: min(calc(100vh - var(--topbar-height, 68px) - 34px), 980px);
+  max-height: calc(100vh - var(--topbar-height, 68px) - 34px);
   padding: 22px;
   border-radius: 8px;
   background: var(--surface);
   color: var(--text);
   box-shadow: 0 34px 90px rgba(0, 0, 0, 0.24);
+}
+
+.template-preview-modal > .close-btn {
+  z-index: 4;
 }
 
 .template-preview-modal-header {

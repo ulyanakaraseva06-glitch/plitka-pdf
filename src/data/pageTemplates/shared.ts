@@ -108,7 +108,7 @@ export function image(
   aspectRatio: NonNullable<ImageZone['aspectRatio']>,
   layout: ZoneLayout
 ): ImageZone {
-  const fit = imageRole === 'interior' ? 'cover' : 'contain';
+  const fit = imageRole === 'interior' ? 'fill' : 'contain';
   return { id, kind: 'image', label, src, alt: label, imageRole, aspectRatio, fit, layout };
 }
 

@@ -159,7 +159,12 @@ export function App() {
   const [history, setHistory] = useState<HistoryState<Project>>(() => createEmptyHistory());
   const [storageWarning, setStorageWarning] = useState('');
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null);
-  const [isDesktopEditor, setDesktopEditor] = useState(() => typeof window === 'undefined' ? true : window.innerWidth >= 1180);
+  const [isMobileDevice, setMobileDevice] = useState(() => {
+  if (typeof window === 'undefined') return false;
+
+  return window.matchMedia('(pointer: coarse)').matches &&
+    window.matchMedia('(max-width: 900px)').matches;
+});
 
   const trackedZoneEvents = useRef(new Set<string>());
   const mountedRef = useRef(false);
@@ -513,16 +518,23 @@ export function App() {
   }, [serviceSettings]);
 
   useEffect(() => {
-    if (!selectedPage && pages[0]) setSelectedPageId(pages[0].id);
-  }, [pages, selectedPage]);
+  if (typeof window === 'undefined') return;
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const updateDesktopState = () => setDesktopEditor(window.innerWidth >= 1180);
-    updateDesktopState();
-    window.addEventListener('resize', updateDesktopState);
-    return () => window.removeEventListener('resize', updateDesktopState);
-  }, []);
+  const mobileQuery = window.matchMedia(
+    '(pointer: coarse) and (max-width: 900px)'
+  );
+
+  const updateMobileState = () => {
+    setMobileDevice(mobileQuery.matches);
+  };
+
+  updateMobileState();
+  mobileQuery.addEventListener('change', updateMobileState);
+
+  return () => {
+    mobileQuery.removeEventListener('change', updateMobileState);
+  };
+}, []);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -1018,7 +1030,7 @@ export function App() {
     }
   ];
 
-  if (!isDesktopEditor) {
+  if (isMobileDevice) {
     return (
       <div className="app-shell desktop-required-shell" data-theme={serviceSettings.interfaceTheme} data-accent="purple">
         <section className="desktop-required-card">

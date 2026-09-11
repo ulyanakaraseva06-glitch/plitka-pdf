@@ -3,25 +3,31 @@ import { createProject, getPresetLabel, getPresetPreferredSchemeId, presetLabels
 
 describe('createProject presets', () => {
   it('registers the new scenario labels', () => {
-    expect(presetLabels.premium_catalog).toBe('Премиальный каталог коллекции');
-    expect(presetLabels.dealer_presentation).toBe('Дилерская презентация');
-    expect(presetLabels.client_offer).toBe('КП для клиента');
-    expect(presetLabels.outdoor_collection).toBe('Каталог outdoor-коллекции');
-    expect(Object.keys(presetLabels)).toHaveLength(6);
+    expect(presetLabels.premium_catalog).toBe('Премиум');
+    expect(presetLabels.dealer_presentation).toBe('Дилеру');
+    expect(presetLabels.client_offer).toBe('Клиенту');
+    expect(presetLabels.outdoor_collection).toBe('Терраса');
+    expect(presetLabels.slab_catalog).toBe('Слэб');
+    expect(presetLabels.wood_catalog).toBe('Планки');
+    expect(presetLabels.editorial_catalog).toBe('Lookbook');
+    expect(Object.keys(presetLabels)).toHaveLength(9);
     expect(getPresetLabel('mini_catalog')).toBe('Мини-каталог');
   });
 
   it('exposes visible preset summaries for the UI', () => {
-    expect(visiblePresetSummaries).toHaveLength(6);
+    expect(visiblePresetSummaries).toHaveLength(9);
     expect(visiblePresetSummaries.map((item) => item.id)).toEqual([
       'premium_catalog',
       'outdoor_collection',
+      'slab_catalog',
+      'wood_catalog',
+      'editorial_catalog',
       'dealer_presentation',
       'client_offer',
       'price_list',
       'selection'
     ]);
-    expect(visiblePresetSummaries.map((item) => item.pageCount)).toEqual([8, 6, 9, 7, 7, 8]);
+    expect(visiblePresetSummaries.map((item) => item.pageCount)).toEqual([8, 6, 9, 9, 9, 9, 7, 7, 8]);
     expect(visiblePresetSummaries.every((item) => item.description.length > 0)).toBe(true);
     expect(visiblePresetSummaries.every((item) => item.audience.length > 0)).toBe(true);
   });
@@ -99,6 +105,9 @@ describe('createProject presets', () => {
     expect(getPresetPreferredSchemeId('dealer_presentation')).toBe('dealer');
     expect(getPresetPreferredSchemeId('client_offer')).toBe('warm_catalog');
     expect(getPresetPreferredSchemeId('outdoor_collection')).toBe('warm_catalog');
+    expect(getPresetPreferredSchemeId('slab_catalog')).toBe('premium_graphite');
+    expect(getPresetPreferredSchemeId('wood_catalog')).toBe('warm_catalog');
+    expect(getPresetPreferredSchemeId('editorial_catalog')).toBe('minimal');
   });
 
   it('builds the outdoor collection catalogue from dedicated page templates', () => {
@@ -121,6 +130,66 @@ describe('createProject presets', () => {
     expect(firstHeading.kind).toBe('text');
     if (firstHeading.kind !== 'text') throw new Error('Expected text zone');
     expect(firstHeading.value).toBe('Классический камень');
+  });
+
+  it('builds the slab catalogue from dedicated large-format pages', () => {
+    const project = createProject('slab_catalog');
+
+    expect(project.title).toBe('Slab Format Catalogue');
+    expect(project.pageFormat).toBe('a4_landscape');
+    expect(project.showLogos).toBe(false);
+    expect(project.pages).toHaveLength(9);
+    expect(project.pages.map((page) => page.templateId)).toEqual([
+      'catalog_slab_statement_cover',
+      'catalog_slab_origin_formats',
+      'catalog_slab_tone_scale',
+      'catalog_slab_bookmatch',
+      'catalog_slab_wet_interior',
+      'catalog_slab_thickness_trio',
+      'catalog_slab_finish_row',
+      'catalog_slab_format_ladder',
+      'catalog_slab_architecture'
+    ]);
+  });
+
+  it('builds the wood plank catalogue from interior plank pages', () => {
+    const project = createProject('wood_catalog');
+
+    expect(project.title).toBe('Wood Plank Catalogue');
+    expect(project.pageFormat).toBe('a4_landscape');
+    expect(project.showLogos).toBe(false);
+    expect(project.pages).toHaveLength(9);
+    expect(project.pages.map((page) => page.templateId)).toEqual([
+      'catalog_wood_opener',
+      'catalog_wood_tone_story',
+      'catalog_wood_full_scene',
+      'catalog_wood_surface_split',
+      'catalog_wood_plank_row',
+      'catalog_wood_herringbone',
+      'catalog_wood_companions',
+      'catalog_wood_grain_macro',
+      'catalog_wood_usage_icons'
+    ]);
+  });
+
+  it('builds the editorial lookbook from journal-style pages', () => {
+    const project = createProject('editorial_catalog');
+
+    expect(project.title).toBe('Collection Lookbook');
+    expect(project.pageFormat).toBe('a4_landscape');
+    expect(project.showLogos).toBe(false);
+    expect(project.pages).toHaveLength(9);
+    expect(project.pages.map((page) => page.templateId)).toEqual([
+      'catalog_editorial_chapter',
+      'catalog_editorial_quote',
+      'catalog_editorial_dual_lifestyle',
+      'catalog_editorial_collage',
+      'catalog_editorial_index',
+      'catalog_editorial_palette_ribbon',
+      'catalog_editorial_side_caption',
+      'catalog_editorial_project_case',
+      'catalog_editorial_next_step'
+    ]);
   });
 
   it('keeps the remaining legacy pages tied to active scenarios', () => {

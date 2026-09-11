@@ -178,6 +178,12 @@ export function PageLibrary({
     setQuery('');
   }
 
+  function togglePresets() {
+    const next = !presetsOpen;
+    setPresetsOpen(next);
+    if (next) setUserTemplatesOpen(false);
+  }
+
   function voteForTemplate(templateId: string, vote: 'up' | 'down') {
     setTemplateVotes((current) => {
       const previous = current[templateId] ?? { up: 0, down: 0 };
@@ -228,59 +234,11 @@ export function PageLibrary({
         <input placeholder="Поиск" value={query} onChange={(event) => setQuery(event.target.value)} />
       </label>
 
-      <div className="template-groups">
-        {filtered.length === 0 && (
-          <section className="template-empty-state">
-            <strong>Ничего не найдено</strong>
-            <span>Измените поиск или сбросьте фильтры, чтобы вернуться ко всей библиотеке.</span>
-          </section>
-        )}
-
-        {categories.map((category) => {
-          const templates = templatesByCategory.get(category.id) ?? [];
-          if (!templates.length) return null;
-          const isOpen = filtersActive || openCategories.includes(category.id);
-          const CategoryIcon = categoryIcons[category.id as keyof typeof categoryIcons] ?? FileText;
-          return (
-            <section key={category.id} className="template-group">
-              <button
-                className={`group-title ${isOpen ? 'open' : ''}`}
-                onClick={() => {
-                  setOpenCategories((current) =>
-                    current.includes(category.id) ? current.filter((id) => id !== category.id) : [...current, category.id]
-                  );
-                }}
-              >
-                <span className="group-title-copy">
-                  <CategoryIcon size={15} />
-                  <span>{categoryLabels[category.id] ?? category.title}</span>
-                </span>
-                <small>{templates.length}</small>
-                <ChevronDown size={16} />
-              </button>
-              {isOpen && (
-                <div className="template-grid">
-                  {templates.map((template) => (
-                    <PageTemplateCard
-                      key={template.id}
-                      template={template}
-                      previewSettings={previewSettings}
-                      onAdd={() => onAddPage(template.id)}
-                      onPreview={() => openPreview(template)}
-                    />
-                  ))}
-                </div>
-              )}
-            </section>
-          );
-        })}
-      </div>
-
-      <section className="preset-library-control preset-dropdown-library">
+      <section className={`preset-library-control preset-dropdown-library ${presetsOpen ? 'is-open' : ''}`}>
         <button
           type="button"
           className={`group-title ${presetsOpen ? 'open' : ''}`}
-          onClick={() => setPresetsOpen((current) => !current)}
+          onClick={togglePresets}
         >
           <span className="group-title-copy">
             <BookOpen size={15} />
@@ -301,11 +259,7 @@ export function PageLibrary({
                 <BookOpen size={14} />
                 <span className="preset-copy">
                   <strong>{preset.label}</strong>
-                  <small>{preset.description}</small>
-                </span>
-                <span className="preset-meta">
                   <small>{preset.pageCount} стр.</small>
-                  <small>{preset.audience}</small>
                 </span>
               </button>
             ))}
@@ -313,12 +267,65 @@ export function PageLibrary({
         )}
       </section>
 
+      {!presetsOpen && (
+        <div className="template-groups">
+          {filtered.length === 0 && (
+            <section className="template-empty-state">
+              <strong>Ничего не найдено</strong>
+              <span>Измените поиск или сбросьте фильтры, чтобы вернуться ко всей библиотеке.</span>
+            </section>
+          )}
+
+          {categories.map((category) => {
+            const templates = templatesByCategory.get(category.id) ?? [];
+            if (!templates.length) return null;
+            const isOpen = filtersActive || openCategories.includes(category.id);
+            const CategoryIcon = categoryIcons[category.id as keyof typeof categoryIcons] ?? FileText;
+            return (
+              <section key={category.id} className="template-group">
+                <button
+                  className={`group-title ${isOpen ? 'open' : ''}`}
+                  onClick={() => {
+                    setOpenCategories((current) =>
+                      current.includes(category.id) ? current.filter((id) => id !== category.id) : [...current, category.id]
+                    );
+                  }}
+                >
+                  <span className="group-title-copy">
+                    <CategoryIcon size={15} />
+                    <span>{categoryLabels[category.id] ?? category.title}</span>
+                  </span>
+                  <small>{templates.length}</small>
+                  <ChevronDown size={16} />
+                </button>
+                {isOpen && (
+                  <div className="template-grid">
+                    {templates.map((template) => (
+                      <PageTemplateCard
+                        key={template.id}
+                        template={template}
+                        previewSettings={previewSettings}
+                        onAdd={() => onAddPage(template.id)}
+                        onPreview={() => openPreview(template)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </section>
+            );
+          })}
+        </div>
+      )}
+
       {userTemplates.length > 0 && (
         <section className="preset-library-control user-template-library">
           <button
             type="button"
-            className={`group-title ${userTemplatesOpen ? 'open' : ''}`}
-            onClick={() => setUserTemplatesOpen((current) => !current)}
+            className={`group-title ${userTemplatesOpen && !presetsOpen ? 'open' : ''}`}
+            onClick={() => {
+              if (presetsOpen) return;
+              setUserTemplatesOpen((current) => !current);
+            }}
           >
             <span className="group-title-copy">
               <Star size={15} />
@@ -327,7 +334,7 @@ export function PageLibrary({
             <small>{userTemplates.length}</small>
             <ChevronDown size={16} />
           </button>
-          {userTemplatesOpen && (
+          {userTemplatesOpen && !presetsOpen && (
             <div className="user-template-list">
               {userTemplates.map((template) => (
                 <div className="user-template-row" key={template.id}>

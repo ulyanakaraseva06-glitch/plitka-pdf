@@ -93,6 +93,9 @@ function patchPagesByTemplate(project: Project, templateId: string, patch: (page
 const visiblePresetIds: PresetId[] = [
   'premium_catalog',
   'outdoor_collection',
+  'slab_catalog',
+  'wood_catalog',
+  'editorial_catalog',
   'dealer_presentation',
   'client_offer',
   'price_list',
@@ -102,14 +105,17 @@ const visiblePresetIds: PresetId[] = [
 const presetDescriptions: Record<PresetId, string> = {
   mini_catalog: 'Короткий каталог с обзором серии, ассортиментом и контактом.',
   commercial_offer: 'Коммерческая сборка с техстраницами, прайсом и контактами.',
-  price_list: 'Прайсовая сборка с ассортиментом, сеткой товаров и расчетной страницей.',
-  selection: 'Подборка для согласования решений по стилю, сценам и фактурам.',
+  price_list: 'Ассортимент и расчёт.',
+  selection: 'Стиль, сцены и фактуры.',
   technical_package: 'Техническая подборка с таблицами, форматами и спецификацией.',
   moodboard_presentation: 'Moodboard-сценарий для подбора фактур и визуального сравнения.',
-  premium_catalog: 'Премиальная подача коллекции с историей, сценами и финальным контактом.',
-  outdoor_collection: 'Каталог уличной плитки: сцены коллекций, ассортимент 20 мм и системы укладки.',
-  dealer_presentation: 'Рабочая презентация для дилеров: материалы, SKU, прайс и упаковка.',
-  client_offer: 'Короткое КП для клиента с кейсом, сценами и итоговым предложением.',
+  premium_catalog: 'История, сцены и контакт.',
+  outdoor_collection: 'Сцены, 20 мм и укладка.',
+  slab_catalog: 'Слэб, толщины и форматы.',
+  wood_catalog: 'Дуб, пол, стена и столешница.',
+  editorial_catalog: 'Главы, цитата и коллаж.',
+  dealer_presentation: 'Материалы, SKU и прайс.',
+  client_offer: 'Кейс, сцены и расчёт.',
   empty: 'Пустой документ без стартовых страниц.'
 };
 
@@ -122,6 +128,9 @@ const presetAudiences: Record<PresetId, string> = {
   moodboard_presentation: 'клиент / проект',
   premium_catalog: 'бренд / клиент',
   outdoor_collection: 'бренд / дилер',
+  slab_catalog: 'бренд / проект',
+  wood_catalog: 'бренд / клиент',
+  editorial_catalog: 'бренд / клиент',
   dealer_presentation: 'дилер / менеджер',
   client_offer: 'клиент',
   empty: 'с нуля'
@@ -185,6 +194,36 @@ const outdoorProfile: Partial<CompanyProfile> = {
   messenger: '@vilray_catalog',
   email: 'outdoor@vilray.studio',
   website: 'vilray.studio/outdoor',
+  address: 'Москва'
+};
+
+const slabProfile: Partial<CompanyProfile> = {
+  companyName: 'Vilray Studio',
+  managerName: 'Каталожный отдел',
+  phone: '+7 (495) 120-24-26',
+  messenger: '@vilray_catalog',
+  email: 'catalog@vilray.studio',
+  website: 'vilray.studio/catalogs',
+  address: 'Москва'
+};
+
+const woodProfile: Partial<CompanyProfile> = {
+  companyName: 'Vilray Studio',
+  managerName: 'Каталожный отдел',
+  phone: '+7 (495) 120-24-26',
+  messenger: '@vilray_catalog',
+  email: 'catalog@vilray.studio',
+  website: 'vilray.studio/catalogs',
+  address: 'Москва'
+};
+
+const editorialProfile: Partial<CompanyProfile> = {
+  companyName: 'Vilray Studio',
+  managerName: 'Каталожный отдел',
+  phone: '+7 (495) 120-24-26',
+  messenger: '@vilray_catalog',
+  email: 'catalog@vilray.studio',
+  website: 'vilray.studio/catalogs',
   address: 'Москва'
 };
 
@@ -518,7 +557,7 @@ const presetDefinitions: Record<PresetId, PresetDefinition> = {
     ]
   },
   selection: {
-    label: 'Подборка',
+    label: 'Подбор',
     projectTitle: 'Подборка',
     libraryStatus: 'core',
     templateIds: [
@@ -563,7 +602,7 @@ const presetDefinitions: Record<PresetId, PresetDefinition> = {
     ]
   },
   premium_catalog: {
-    label: 'Премиальный каталог коллекции',
+    label: 'Премиум',
     projectTitle: 'Pietra Nuvola Premium Catalogue',
     libraryStatus: 'core',
     templateIds: [
@@ -582,7 +621,7 @@ const presetDefinitions: Record<PresetId, PresetDefinition> = {
     customize: customizePremiumCatalog
   },
   outdoor_collection: {
-    label: 'Каталог outdoor-коллекции',
+    label: 'Терраса',
     projectTitle: 'Outdoor Collection Catalogue',
     libraryStatus: 'core',
     templateIds: [
@@ -598,8 +637,68 @@ const presetDefinitions: Record<PresetId, PresetDefinition> = {
     showLogos: false,
     companyProfile: outdoorProfile
   },
+  slab_catalog: {
+    label: 'Слэб',
+    projectTitle: 'Slab Format Catalogue',
+    libraryStatus: 'core',
+    templateIds: [
+      'catalog_slab_statement_cover',
+      'catalog_slab_origin_formats',
+      'catalog_slab_tone_scale',
+      'catalog_slab_bookmatch',
+      'catalog_slab_wet_interior',
+      'catalog_slab_thickness_trio',
+      'catalog_slab_finish_row',
+      'catalog_slab_format_ladder',
+      'catalog_slab_architecture'
+    ],
+    preferredSchemeId: 'premium_graphite',
+    pageFormat: 'a4_landscape',
+    showLogos: false,
+    companyProfile: slabProfile
+  },
+  wood_catalog: {
+    label: 'Планки',
+    projectTitle: 'Wood Plank Catalogue',
+    libraryStatus: 'core',
+    templateIds: [
+      'catalog_wood_opener',
+      'catalog_wood_tone_story',
+      'catalog_wood_full_scene',
+      'catalog_wood_surface_split',
+      'catalog_wood_plank_row',
+      'catalog_wood_herringbone',
+      'catalog_wood_companions',
+      'catalog_wood_grain_macro',
+      'catalog_wood_usage_icons'
+    ],
+    preferredSchemeId: 'warm_catalog',
+    pageFormat: 'a4_landscape',
+    showLogos: false,
+    companyProfile: woodProfile
+  },
+  editorial_catalog: {
+    label: 'Lookbook',
+    projectTitle: 'Collection Lookbook',
+    libraryStatus: 'core',
+    templateIds: [
+      'catalog_editorial_chapter',
+      'catalog_editorial_quote',
+      'catalog_editorial_dual_lifestyle',
+      'catalog_editorial_collage',
+      'catalog_editorial_index',
+      'catalog_editorial_palette_ribbon',
+      'catalog_editorial_side_caption',
+      'catalog_editorial_project_case',
+      'catalog_editorial_next_step'
+    ],
+    preferredSchemeId: 'minimal',
+    pageFormat: 'a4_landscape',
+    showLogos: false,
+    companyProfile: editorialProfile
+  },
   dealer_presentation: {
-    label: 'Дилерская презентация',
+    label: 'Дилеру',
     projectTitle: 'Sierra Stone Dealer Presentation',
     libraryStatus: 'core',
     templateIds: [
@@ -619,7 +718,7 @@ const presetDefinitions: Record<PresetId, PresetDefinition> = {
     customize: customizeDealerPresentation
   },
   client_offer: {
-    label: 'КП для клиента',
+    label: 'Клиенту',
     projectTitle: 'КП по проекту Riverside Residence',
     libraryStatus: 'core',
     templateIds: [

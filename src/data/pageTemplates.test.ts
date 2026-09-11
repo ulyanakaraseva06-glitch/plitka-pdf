@@ -4,8 +4,8 @@ import { templatePreviewPage } from '../components/PageTemplateCard/PageTemplate
 
 describe('pageTemplates registry', () => {
   it('exposes the compact visible library', () => {
-    expect(pageTemplates).toHaveLength(42);
-    expect(allPageTemplates).toHaveLength(65);
+    expect(pageTemplates).toHaveLength(69);
+    expect(allPageTemplates).toHaveLength(92);
     expect(allPageTemplates.filter((template) => template.libraryStatus === 'legacy')).toHaveLength(3);
     expect(allPageTemplates.filter((template) => template.libraryStatus === 'hidden')).toHaveLength(20);
   });
@@ -76,6 +76,57 @@ describe('pageTemplates registry', () => {
 
     expect(ids.map((id) => getTemplate(id).id)).toEqual(ids);
     expect(ids.every((id) => getTemplate(id).libraryStatus === 'core')).toBe(true);
+  });
+
+  it('registers the slab, wood and editorial lookbook template sets', () => {
+    const ids = [
+      'catalog_slab_statement_cover',
+      'catalog_slab_origin_formats',
+      'catalog_slab_tone_scale',
+      'catalog_slab_bookmatch',
+      'catalog_slab_wet_interior',
+      'catalog_slab_thickness_trio',
+      'catalog_slab_finish_row',
+      'catalog_slab_format_ladder',
+      'catalog_slab_architecture',
+      'catalog_wood_opener',
+      'catalog_wood_tone_story',
+      'catalog_wood_full_scene',
+      'catalog_wood_surface_split',
+      'catalog_wood_plank_row',
+      'catalog_wood_herringbone',
+      'catalog_wood_companions',
+      'catalog_wood_grain_macro',
+      'catalog_wood_usage_icons',
+      'catalog_editorial_chapter',
+      'catalog_editorial_quote',
+      'catalog_editorial_dual_lifestyle',
+      'catalog_editorial_collage',
+      'catalog_editorial_index',
+      'catalog_editorial_palette_ribbon',
+      'catalog_editorial_side_caption',
+      'catalog_editorial_project_case',
+      'catalog_editorial_next_step'
+    ];
+
+    expect(ids.map((id) => getTemplate(id).id)).toEqual(ids);
+    expect(ids.every((id) => getTemplate(id).libraryStatus === 'core')).toBe(true);
+  });
+
+  it('keeps lookbook catalog zones inside the page bounds', () => {
+    const lookbookTemplates = allPageTemplates.filter((item) =>
+      item.id.startsWith('catalog_slab_') || item.id.startsWith('catalog_wood_') || item.id.startsWith('catalog_editorial_')
+    );
+
+    expect(lookbookTemplates).toHaveLength(27);
+    for (const item of lookbookTemplates) {
+      for (const zone of Object.values(item.defaultZones)) {
+        expect(zone.layout.x).toBeGreaterThanOrEqual(0);
+        expect(zone.layout.y).toBeGreaterThanOrEqual(0);
+        expect(zone.layout.x + zone.layout.w).toBeLessThanOrEqual(100);
+        expect(zone.layout.y + zone.layout.h).toBeLessThanOrEqual(100);
+      }
+    }
   });
 
   it('keeps outdoor collection zones inside the page bounds', () => {

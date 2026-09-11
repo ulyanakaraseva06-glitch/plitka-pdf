@@ -7,6 +7,9 @@ export type PresetId =
   | 'moodboard_presentation'
   | 'premium_catalog'
   | 'outdoor_collection'
+  | 'slab_catalog'
+  | 'wood_catalog'
+  | 'editorial_catalog'
   | 'dealer_presentation'
   | 'client_offer'
   | 'empty';

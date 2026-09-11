@@ -1,4 +1,4 @@
-import { BadgePercent, BookOpen, FileText, Grid2X2, Maximize2, RotateCcw, Save, Star, Trees, ZoomIn, ZoomOut } from 'lucide-react';
+import { BadgePercent, BookOpen, FileText, Grid2X2, Layers, Maximize2, Quote, RectangleHorizontal, RotateCcw, Save, Star, Trees, ZoomIn, ZoomOut } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { visiblePresetSummaries } from '../../data/createProject';
 import {
@@ -34,6 +34,9 @@ const emptyPresetIcons: Record<PresetId, JSX.Element> = {
   moodboard_presentation: <Star size={18} />,
   premium_catalog: <BookOpen size={18} />,
   outdoor_collection: <Trees size={18} />,
+  slab_catalog: <Layers size={18} />,
+  wood_catalog: <RectangleHorizontal size={18} />,
+  editorial_catalog: <Quote size={18} />,
   dealer_presentation: <Grid2X2 size={18} />,
   client_offer: <FileText size={18} />,
   empty: <BookOpen size={18} />

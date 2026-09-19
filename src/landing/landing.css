@@ -97,6 +97,7 @@ body.landing-runtime #root {
 }
 
 .landing-nav-links a,
+.landing-nav-links button,
 .landing-nav-cta {
   color: var(--landing-muted);
   font-size: 13px;
@@ -104,7 +105,14 @@ body.landing-runtime #root {
   text-decoration: none;
 }
 
+.landing-nav-links button {
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
 .landing-nav-links a:hover,
+.landing-nav-links button:hover,
 .landing-nav-cta:hover {
   color: var(--landing-accent-dark);
 }
@@ -661,7 +669,8 @@ body.landing-runtime #root {
 
 .landing-footer .landing-brand small,
 .landing-footer p,
-.landing-footer nav a {
+.landing-footer nav a,
+.landing-footer nav button {
   color: rgba(255, 255, 255, 0.68);
 }
 
@@ -672,10 +681,17 @@ body.landing-runtime #root {
   gap: 16px;
 }
 
-.landing-footer nav a {
+.landing-footer nav a,
+.landing-footer nav button {
   font-size: 13px;
   font-weight: 800;
   text-decoration: none;
+}
+
+.landing-footer nav button {
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
 }
 
 .landing-footer p {

@@ -1,3 +1,9 @@
+export const helpPageMeta = {
+  eyebrow: 'Помощь',
+  title: 'Как работать в Плитка PDF',
+  lead: 'Короткий обзор рабочего стола и ответы на типичные вопросы: от первого документа до выгрузки PDF.'
+};
+
 export const helpVideoScenes = [
   {
     src: '/landing/app-screen-video.webp',

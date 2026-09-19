@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   ArrowRight,
   Building2,
@@ -15,6 +16,7 @@ import {
   WandSparkles
 } from 'lucide-react';
 import { track } from '../analytics/analyticsClient';
+import { SiteInfoModal, type SiteInfoKind } from '../components/modals/SiteInfoModal';
 
 const appUrl = '/app/';
 
@@ -96,6 +98,8 @@ const services = [
 ];
 
 export function LandingPage() {
+  const [siteInfoKind, setSiteInfoKind] = useState<SiteInfoKind | null>(null);
+
   function trackLandingClick(eventName: string, target: string) {
     track(eventName, { target, path: window.location.pathname });
   }
@@ -113,8 +117,8 @@ export function LandingPage() {
         <nav className="landing-nav-links" aria-label="Разделы лендинга">
           <a href="#why">Зачем</a>
           <a href="#video">Видео</a>
-          <a href="/help/">Помощь</a>
-          <a href="/about/">О сервисе</a>
+          <button type="button" onClick={() => setSiteInfoKind('help')}>Помощь</button>
+          <button type="button" onClick={() => setSiteInfoKind('about')}>О сервисе</button>
           <a href="#workflow" onClick={() => trackLandingClick('landing_how_it_works_click', 'nav_workflow')}>Как работает</a>
           <a href="#services" onClick={() => trackLandingClick('landing_ecosystem_click', 'nav_services')}>Сервисы</a>
           <a href="#vilray" onClick={() => trackLandingClick('landing_vilray_cta_click', 'nav_vilray')}>Vilray Studio</a>
@@ -359,8 +363,8 @@ export function LandingPage() {
           <nav aria-label="Навигация в подвале">
             <a href="#why">Зачем</a>
             <a href="#video">Видео</a>
-            <a href="/help/">Помощь</a>
-            <a href="/about/">О сервисе</a>
+            <button type="button" onClick={() => setSiteInfoKind('help')}>Помощь</button>
+            <button type="button" onClick={() => setSiteInfoKind('about')}>О сервисе</button>
             <a href="#services" onClick={() => trackLandingClick('landing_ecosystem_click', 'footer_services')}>Сервисы</a>
             <a href="/terms/">Условия</a>
             <a href="/privacy/">Конфиденциальность</a>
@@ -369,6 +373,10 @@ export function LandingPage() {
           <p>Рабочий инструмент для PDF-каталогов, прайсов, КП и подборок по плитке.</p>
         </div>
       </footer>
+
+      {siteInfoKind && (
+        <SiteInfoModal kind={siteInfoKind} onClose={() => setSiteInfoKind(null)} />
+      )}
     </div>
   );
 }

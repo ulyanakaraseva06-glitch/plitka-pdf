@@ -1,46 +1,16 @@
-import { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
-import { aboutSections } from './aboutContent';
+import { aboutPageMeta } from './aboutContent';
+import { AboutInfo } from './AboutInfo';
 import { SitePageShell } from './SitePageShell';
 
 export function AboutPage() {
-  const [openId, setOpenId] = useState(aboutSections[0].id);
-
   return (
     <SitePageShell
       wide
-      eyebrow="О сервисе"
-      title="Плитка PDF — сервис для каталогов, прайсов и подборок"
-      lead="Рабочий инструмент Vilray Studio для поставщиков, салонов и производителей плитки: собрать аккуратный PDF из готовых страниц и отправить клиенту."
+      eyebrow={aboutPageMeta.eyebrow}
+      title={aboutPageMeta.title}
+      lead={aboutPageMeta.lead}
     >
-      <div className="about-accordion">
-        {aboutSections.map((section) => {
-          const open = section.id === openId;
-          return (
-            <section key={section.id} className={`about-item ${open ? 'open' : ''}`}>
-              <button
-                type="button"
-                className="about-item-trigger"
-                aria-expanded={open}
-                onClick={() => setOpenId(open ? '' : section.id)}
-              >
-                <span>{section.title}</span>
-                <ChevronDown size={18} />
-              </button>
-              {open && (
-                <div className="about-item-body">
-                  {section.paragraphs?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
-                  {section.bullets?.length ? (
-                    <ul>
-                      {section.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}
-                    </ul>
-                  ) : null}
-                </div>
-              )}
-            </section>
-          );
-        })}
-      </div>
+      <AboutInfo />
     </SitePageShell>
   );
 }

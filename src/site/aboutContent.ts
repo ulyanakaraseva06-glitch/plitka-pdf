@@ -1,3 +1,9 @@
+export const aboutPageMeta = {
+  eyebrow: 'О сервисе',
+  title: 'Плитка PDF — сервис для каталогов, прайсов и подборок',
+  lead: 'Рабочий инструмент Vilray Studio для поставщиков, салонов и производителей плитки: собрать аккуратный PDF из готовых страниц и отправить клиенту.'
+};
+
 export const aboutSections = [
   {
     id: 'what',

@@ -38,7 +38,7 @@ export const referenceDerivedTemplates = [
         image('background', 'Фоновая фактура', placeholderImages.textureGreige, 'decorative', '3:4', { x: 7, y: 8, w: 86, h: 84 }),
         { ...style.imagePlain, backgroundColor: '#eee8de' }
       ),
-      year: styled(text('year', 'Год выпуска', '26', 'hero', { x: 10, y: 17, w: 42, h: 25 }), {
+      year: styled({ ...text('year', 'Год выпуска', '26', 'hero', { x: 10, y: 17, w: 42, h: 25 }), fontSizePt: 100 }, {
         textColor: '#2b2926',
         borderRadius: 0
       }),

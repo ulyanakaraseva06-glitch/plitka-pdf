@@ -18,7 +18,7 @@ export const priceTemplates = [
   template('price_summary_offer', 'price', 'КП: короткое резюме', 'Страница-резюме с визуальным блоком, суммой и условиями.', placeholderImages.previewPriceQuote, {
     image: styled(image('image', 'Интерьер 16:9', placeholderImages.catalogInteriorLiving, 'interior', '16:9', { x: 8, y: 9, w: 44, h: 26 }), style.imageShadow),
     brandBadge: styled(badge('brandBadge', 'Итог', { x: 61, y: 10, w: 16, h: 4.6 }), style.accentBadge),
-    heading: styled(text('heading', 'Заголовок', 'Резюме предложения', 'h1', { x: 61, y: 21, w: 31, h: 7 }), style.darkText),
+    heading: styled(text('heading', 'Заголовок', 'Резюме предложения', 'h1', { x: 57, y: 21, w: 36, h: 12 }), style.darkText),
     summary: styled(text('summary', 'Итог', 'Подборка: 5 позиций\nПлощадь: 147 м2\nДоставка: по запросу', 'body', { x: 61, y: 36, w: 28, h: 11 }), style.darkText),
     table: styled(table('table', 'Расчет', priceColumns, catalogRows.slice(0, 4), { x: 8, y: 52, w: 84, h: 23 }), style.whitePanel),
     next: styled(text('next', 'Следующий шаг', 'Следующий шаг: подтвердить количество, резерв и срок поставки.', 'body', { x: 8, y: 83, w: 53, h: 8 }), style.mutedText),

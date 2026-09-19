@@ -1,6 +1,6 @@
 import { Plus, Search } from 'lucide-react';
 import { DocumentRenderSettings, Page } from '../../types/project';
-import { LibraryAudience, LibrarySection, PageTemplate } from '../../types/templates';
+import { PageTemplate } from '../../types/templates';
 import { FitPagePreview } from '../FitPagePreview/FitPagePreview';
 
 export type TemplatePreviewSettings = DocumentRenderSettings;
@@ -13,23 +13,6 @@ type PageTemplateCardProps = {
 };
 
 const previewPageCache = new Map<string, Page>();
-
-const sectionLabels: Record<LibrarySection, string> = {
-  cover: 'Обложка',
-  overview: 'Обзор',
-  grid: 'Сетка',
-  interior: 'Интерьер',
-  specs: 'Техданные',
-  table: 'Таблица',
-  price: 'Прайс',
-  contacts: 'Контакты'
-};
-
-const audienceLabels: Record<LibraryAudience, string> = {
-  brand: 'Бренд',
-  dealer: 'Дилер',
-  client: 'Клиент'
-};
 
 export function templatePreviewPage(template: PageTemplate): Page {
   const cached = previewPageCache.get(template.id);
@@ -49,8 +32,6 @@ export function templatePreviewPage(template: PageTemplate): Page {
 
 export function PageTemplateCard({ template, previewSettings, onAdd, onPreview }: PageTemplateCardProps) {
   const previewPage = templatePreviewPage(template);
-  const sectionLabel = template.librarySection ? sectionLabels[template.librarySection] : null;
-  const audienceLabelList = template.audiences?.map((audience) => audienceLabels[audience]) ?? [];
 
   return (
     <article className="template-card">
@@ -71,14 +52,6 @@ export function PageTemplateCard({ template, previewSettings, onAdd, onPreview }
       <div className="template-card-title">
         <strong>{template.title}</strong>
       </div>
-      {(sectionLabel || audienceLabelList.length > 0) && (
-        <div className="template-card-meta">
-          {sectionLabel && <span>{sectionLabel}</span>}
-          {audienceLabelList.map((label) => (
-            <span key={label}>{label}</span>
-          ))}
-        </div>
-      )}
       <button className="icon-btn template-preview-btn" onClick={onPreview} title="Увеличить страницу" aria-label="Увеличить страницу">
         <Search size={16} />
       </button>

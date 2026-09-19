@@ -8,6 +8,7 @@ import { fontCss } from '../../data/textEditor';
 import { CatalogIconGlyph } from '../../data/iconLibrary';
 import { formatMoney, rowTotal } from '../../utils/calculations';
 import { getTemplate } from '../../data/pageTemplates';
+import { resizeDirections, resizeZone, type ResizeDirection } from '../../utils/resizeZone';
 
 type PdfPageRendererProps = {
   page: Page;
@@ -96,6 +97,8 @@ function shouldUseInlineTextColor(page: Page, zone: EditableZone, hasDocumentTex
   if (zone.kind === 'divider') return false;
   if (zone.kind === 'panel') return false;
   if (zone.kind === 'text' && styleOverride(page, zone, 'textColor')) return true;
+  // Light lettering is intentional on photographs and dark template panels.
+  if (zone.kind === 'text' && ['#f7f3ec', '#ffffff', '#fff'].includes(color)) return true;
   if (zone.kind === 'text' && hasDocumentTextOverride) return false;
   return !templatePrimaryTextColors.has(color) && !templateMutedTextColors.has(color);
 }
@@ -170,9 +173,9 @@ function renderTable(zone: TableZone) {
 
 function imageFit(zone: ImageZone) {
   if (zone.fit === 'contain') return 'contain';
-  if (zone.fit === 'cover' || zone.fit === 'fill') return 'fill';
+  if (zone.fit === 'cover' || zone.fit === 'fill') return zone.fit;
   if (zone.imageRole === 'product') return 'contain';
-  return 'fill';
+  return 'cover';
 }
 
 function iconPixelSize(zone: IconZone) {
@@ -545,7 +548,7 @@ onDoubleClick={(event) => {
   const initial = { ...zone.layout };
 
   const target = event.target as HTMLElement;
-  const resizing = target.classList.contains('zone-resize-handle');
+  const resizeDirection = target.closest<HTMLElement>('[data-resize-direction]')?.dataset.resizeDirection as ResizeDirection | undefined;
 
   const move = (moveEvent: PointerEvent) => {
     const dx =
@@ -554,23 +557,8 @@ onDoubleClick={(event) => {
     const dy =
       ((moveEvent.clientY - startY) / rect.height) * 100;
 
-    if (resizing) {
-      const right = snapX(initial.x + initial.w + dx);
-      const bottom = snapY(initial.y + initial.h + dy);
-
-      onZoneLayoutChange(zone.id, {
-        ...initial,
-        w: clamp(
-          right - initial.x,
-          4,
-          100 - initial.x
-        ),
-        h: clamp(
-          bottom - initial.y,
-          3,
-          100 - initial.y
-        )
-      });
+    if (resizeDirection) {
+      onZoneLayoutChange(zone.id, resizeZone(initial, resizeDirection, dx, dy, gridStepX, gridStepY));
     } else {
       const x = snapX(initial.x + dx);
       const y = snapY(initial.y + dy);
@@ -594,10 +582,12 @@ onDoubleClick={(event) => {
   const up = () => {
     window.removeEventListener('pointermove', move);
     window.removeEventListener('pointerup', up);
+    window.removeEventListener('pointercancel', up);
   };
 
   window.addEventListener('pointermove', move);
   window.addEventListener('pointerup', up, { once: true });
+  window.addEventListener('pointercancel', up, { once: true });
 }}
 onDragOver={(event) => {
   if (zone.kind !== 'image' || !onImageDrop) return;
@@ -683,10 +673,15 @@ onDrop={(event) => {
   ×
 </span>
 
-    <span
-      className="zone-resize-handle"
-      aria-hidden="true"
-    />
+    {resizeDirections.map((direction) => (
+      <span
+        key={direction}
+        className={`zone-resize-handle zone-resize-handle-${direction}`}
+        data-resize-direction={direction}
+        aria-hidden="true"
+        onDoubleClick={(event) => event.stopPropagation()}
+      />
+    ))}
   </>
 )}
           </button>

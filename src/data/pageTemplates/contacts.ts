@@ -25,7 +25,7 @@ export const contactsTemplates = [
     ]), style.softPanel),
     address: styled(text('address', 'Адрес', 'Шоурум / склад / город\nусловия поставки уточняются отдельно', 'body', { x: 8, y: 69, w: 46, h: 10 }), style.mutedText),
     image: styled(image('image', 'Интерьер 3:4', placeholderImages.catalogInteriorMarble, 'interior', '3:4', { x: 62, y: 22, w: 27, h: 40 }), style.imageShadow),
-    finalNote: styled(text('finalNote', 'Подпись', 'Финальный блок можно заменить на QR, карту или условия работы.', 'small', { x: 62, y: 71, w: 28, h: 8 }), style.mutedText)
+    finalNote: styled(text('finalNote', 'Подпись', 'Поможем выбрать материал, заказать образцы и согласовать доставку.', 'small', { x: 62, y: 71, w: 28, h: 8 }), style.mutedText)
   }),
 
   template('contacts_qr_placeholder', 'contacts', 'Контакты: QR и реквизиты', 'Финальная страница с зоной под QR, контактами, сайтом и короткой подписью.', placeholderImages.previewContacts, {

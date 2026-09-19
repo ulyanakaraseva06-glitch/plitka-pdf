@@ -250,7 +250,7 @@ function customizePremiumCatalog(project: Project): Project {
       label1: '01  CLOUD STONE / warm ivory',
       label2: '02  VEIN MARBLE / soft graphic',
       label3: '03  OAK BLEND / architectural wood',
-      footerNote: 'Палитра собрана как единая серия для каталога, презентации и showroom-подачи'
+      footerNote: 'Единая палитра для вашего пространства'
     });
   });
 
@@ -279,7 +279,7 @@ function customizePremiumCatalog(project: Project): Project {
     return patchTextZones(page, {
       heading: 'Сравнение коллекций',
       intro: 'Премиальная подача быстро объясняет разницу между базой, акцентом и более тёплым вариантом для жилых пространств.',
-      note: 'Используйте эту страницу, когда нужно показать клиенту сразу две-три серии без перегруза.'
+      note: 'Камень, мрамор и дерево — три характера одной коллекции.'
     });
   });
 
@@ -295,7 +295,7 @@ function customizePremiumCatalog(project: Project): Project {
     return patchTextZones(page, {
       heading: 'Технология и контроль',
       intro: 'Короткий брендовый блок для каталога и презентации: технология, стабильность фактуры и контроль партий.',
-      note: 'Подходит как завершающая деловая страница перед контактами или финальным CTA.'
+      note: 'Точность формата. Стабильность оттенка. Внимание к каждой детали.'
     });
   });
 
@@ -314,7 +314,7 @@ function customizePremiumCatalog(project: Project): Project {
   nextProject = patchPagesByTemplate(nextProject, 'catalog_reference_outdoor_story', (page) => {
     const nextPage = patchTextZones(page, {
       heading: 'Материал для интерьера и террасы',
-      story: 'Серия спокойно переходит из жилого пространства на террасу. Это сильная продажная точка для проектов, где важна единая архитектурная подача.',
+      story: 'Одна палитра для дома и террасы. Материалы объединяют внутреннее и внешнее пространство.',
       materialText: 'PIETRA SAND\n60x60 / 20 mm\nструктурная поверхность'
     });
     return nextPage;
@@ -322,7 +322,7 @@ function customizePremiumCatalog(project: Project): Project {
 
   nextProject = patchPagesByTemplate(nextProject, 'contacts_next_step', (page) => {
     return patchTextZones(page, {
-      heading: 'Запросить образцы\nи финальный расчёт',
+      heading: 'Образцы\nи расчёт',
       nextStep: 'Следующий шаг: подтвердить нужные поверхности, получить образцы и согласовать итоговую версию каталога, PDF или клиентского КП.'
     });
   });
@@ -426,7 +426,7 @@ function customizeDealerPresentation(project: Project): Project {
 function customizeClientOffer(project: Project): Project {
   let nextProject = patchPagesByTemplate(project, 'cover_materials_intro', (page) => {
     return patchTextZones(page, {
-      title: 'Подборка плитки\nдля проекта Riverside',
+      title: 'Плитка для\nRiverside',
       subtitle: 'Готовый набор материалов, форматов и интерьерных сцен для согласования с клиентом, дизайнером и подрядчиком.',
       specChip: 'stone / marble / wood / warm'
     });
@@ -473,7 +473,7 @@ function customizeClientOffer(project: Project): Project {
 
   nextProject = patchPagesByTemplate(nextProject, 'contacts_next_step', (page) => {
     return patchTextZones(page, {
-      heading: 'Согласовать подборку\nи запуск в работу',
+      heading: 'Согласовать\nподборку',
       nextStep: 'После согласования менеджер отправит финальный расчёт, подтвердит наличие и подготовит заказ к отгрузке.',
       companyName: 'Vilray Studio'
     });

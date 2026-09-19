@@ -10,7 +10,7 @@ export const catalogSlabTemplates = [
     {
       slab: styled(image('slab', 'Слэб 1:2', placeholderImages.tile120Marble, 'interior', '1:2', { x: 7, y: 9.2, w: 52, h: 78 }), style.imageShadow),
       brandBadge: styled(badge('brandBadge', '120x280', { x: 64, y: 18, w: 22, h: 4.8 }), style.accentBadge),
-      title: styled(text('title', 'Название коллекции', 'Альпийский\nкамень', 'hero', { x: 64, y: 28, w: 29, h: 16 }), style.darkText),
+      title: styled(text('title', 'Название коллекции', 'Альпийский\nкамень', 'h1', { x: 64, y: 28, w: 29, h: 16 }), style.darkText),
       subtitle: styled(text('subtitle', 'Описание', 'Крупный формат для стен, столешниц и спокойных общественных интерьеров.', 'body', { x: 64, y: 48, w: 29, h: 16 }), style.mutedText),
       issue: styled(text('issue', 'Выпуск', '6 / 9 / 20 мм', 'small', { x: 64, y: 70, w: 22, h: 5 }), style.darkText)
     }

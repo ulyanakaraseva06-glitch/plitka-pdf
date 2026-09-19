@@ -18,6 +18,11 @@
   --vilray-promo-soft: #eef2f0;
 }
 
+.vilray-cta[class*="vilray-promo-"] {
+  --vilray-promo-accent: var(--accent);
+  --vilray-promo-soft: color-mix(in srgb, var(--accent) 10%, var(--surface));
+}
+
 .vilray-cta[class*="vilray-promo-"],
 .vilray-promo[class*="vilray-promo-"] {
   border-color: color-mix(in srgb, var(--vilray-promo-accent) 28%, var(--border));

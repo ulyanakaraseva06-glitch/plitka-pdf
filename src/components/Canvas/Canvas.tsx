@@ -1,4 +1,4 @@
-import { BadgePercent, BookOpen, FileText, Grid2X2, Layers, Maximize2, Quote, RectangleHorizontal, RotateCcw, Save, Star, Trees, ZoomIn, ZoomOut } from 'lucide-react';
+import { BadgePercent, BookOpen, FileText, Grid2X2, Layers, Maximize2, Pencil, Quote, RectangleHorizontal, RotateCcw, Save, Star, Trees, ZoomIn, ZoomOut } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { visiblePresetSummaries } from '../../data/createProject';
 import {
@@ -495,8 +495,16 @@ onZoneDelete={(zoneId) => {
       {widgetPanel}
       <div className="canvas-toolbar">
         <div className="layout-toolbar-actions">
-          <button className={`btn btn-ghost ${layoutEditMode ? 'active' : ''}`} onClick={startLayoutEditing} disabled={!page || layoutEditMode}>Редактировать</button>
-          <button className="btn btn-primary" onClick={saveLayout} disabled={!layoutEditMode}><Save size={16} />Сохранить</button>
+          <button
+            className={`btn ${layoutEditMode ? 'btn-ghost active' : 'btn-primary'}`}
+            onClick={startLayoutEditing}
+            disabled={!page || layoutEditMode}
+            title="Открыть инструменты для добавления и редактирования блоков страницы"
+          >
+            <Pencil size={16} />
+            {layoutEditMode ? 'Редактор открыт' : 'Открыть редактор'}
+          </button>
+          <button className={`btn ${layoutEditMode ? 'btn-primary' : 'btn-ghost'}`} onClick={saveLayout} disabled={!layoutEditMode}><Save size={16} />Сохранить</button>
           <button className="btn btn-ghost" onClick={restoreLayout} disabled={!layoutBaseline}><RotateCcw size={16} />Вернуть</button>
         </div>
         <span>{zoom}%</span>

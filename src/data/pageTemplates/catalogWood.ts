@@ -91,7 +91,7 @@ export const catalogWoodTemplates = [
       t2: styled(text('t2', 'Планка 2', 'Дуб натуральный\n20x120 / 9 мм', 'small', { x: 29, y: 54, w: 20, h: 8 }), style.darkText),
       t3: styled(text('t3', 'Планка 3', 'Дуб тёплый\n20x120 / 9 мм', 'small', { x: 51, y: 54, w: 20, h: 8 }), style.darkText),
       t4: styled(text('t4', 'Планка 4', 'Дуб графит\n20x120 / 9 мм', 'small', { x: 73, y: 54, w: 20, h: 8 }), style.darkText),
-      note: styled(text('note', 'Примечание', 'Один ряд жилых планок. Для улицы используйте outdoor-шаблон с толщиной 20 мм.', 'small', { x: 7, y: 78, w: 86, h: 8 }), style.mutedText)
+      note: styled(text('note', 'Примечание', 'Тёплая фактура дерева для жилых пространств. Рекомендуемая раскладка — со смещением до трети длины.', 'small', { x: 7, y: 78, w: 86, h: 8 }), style.mutedText)
     }
   ),
 

@@ -10,7 +10,7 @@ export const catalogEditorialTemplates = [
     {
       chapter: styled(text('chapter', 'Заголовок', '01', 'hero', { x: 7, y: 14, w: 28, h: 22 }), style.darkText),
       heading: styled(text('heading', 'Название коллекции', 'Жилая\nсерия', 'h1', { x: 7, y: 40, w: 28, h: 14 }), style.darkText),
-      intro: styled(text('intro', 'Описание', 'Открывающий разворот главы: номер, короткое имя серии и один кадр.', 'body', { x: 7, y: 58, w: 28, h: 18 }), style.mutedText),
+      intro: styled(text('intro', 'Описание', 'Природные оттенки и мягкие фактуры. Коллекция для пространств, в которых хочется остаться.', 'body', { x: 7, y: 58, w: 28, h: 18 }), style.mutedText),
       photo: styled(image('photo', 'Интерьер 3:4', placeholderImages.catalogInteriorMarble, 'interior', '3:4', { x: 42, y: 9.2, w: 51, h: 78 }), style.imageShadow)
     }
   ),
@@ -39,7 +39,7 @@ export const catalogEditorialTemplates = [
       portrait: styled(image('portrait', 'Интерьер 3:4', placeholderImages.catalogInteriorMarble, 'interior', '3:4', { x: 64, y: 9.2, w: 29, h: 72 }), style.imageShadow),
       caption1: styled(text('caption1', 'Подпись 1', 'Широкий кадр · гостиная', 'small', { x: 7, y: 60, w: 54, h: 6 }), style.darkText),
       caption2: styled(text('caption2', 'Подпись 2', 'Портрет · влажная зона', 'small', { x: 7, y: 68, w: 54, h: 6 }), style.mutedText),
-      note: styled(text('note', 'Примечание', 'Разный кадр на одной полосе, без повторной сетки двух равных 16:9.', 'small', { x: 7, y: 78, w: 54, h: 8 }), style.mutedText)
+      note: styled(text('note', 'Примечание', 'Одна палитра объединяет комнаты, сохраняя индивидуальность каждого пространства.', 'small', { x: 7, y: 78, w: 54, h: 8 }), style.mutedText)
     }
   ),
 
@@ -56,7 +56,7 @@ export const catalogEditorialTemplates = [
       d: styled(image('d', 'Фрагмент 4', placeholderImages.tileWood, 'product', '1:2', { x: 49, y: 29, w: 22, h: 18 }), style.imagePlain),
       e: styled(image('e', 'Фрагмент 5', placeholderImages.textureGreige, 'product', '1:1', { x: 7, y: 50, w: 18, h: 28 }), style.imagePlain),
       f: styled(image('f', 'Фрагмент 6', placeholderImages.catalogInteriorWarm, 'interior', '16:9', { x: 27, y: 50, w: 44, h: 28 }), style.imageShadow),
-      caption: styled(text('caption', 'Подпись сцены', 'Коллаж настроения\nне SKU-сетка', 'small', { x: 73, y: 50, w: 20, h: 28 }), style.darkText)
+      caption: styled(text('caption', 'Подпись сцены', 'Камень и дерево\nСвет и фактура', 'small', { x: 73, y: 50, w: 20, h: 28 }), style.darkText)
     }
   ),
 
@@ -134,7 +134,7 @@ export const catalogEditorialTemplates = [
     {
       scene: styled(image('scene', 'Интерьер 16:9', placeholderImages.catalogInteriorLiving, 'interior', '16:9', { x: 7, y: 9.2, w: 62, h: 52 }), style.imageShadow),
       heading: styled(text('heading', 'Заголовок', 'Кейс: жилой объём', 'h1', { x: 7, y: 64, w: 40, h: 7 }), style.darkText),
-      story: styled(text('story', 'Описание', 'Одна сцена и два артикула, из которых собран интерьер. Без таблицы и иконок логистики.', 'body', { x: 7, y: 72, w: 40, h: 12 }), style.mutedText),
+      story: styled(text('story', 'Описание', 'Тёплый камень и натуральный рисунок дуба. Два материала создают спокойный, цельный интерьер.', 'body', { x: 7, y: 72, w: 40, h: 12 }), style.mutedText),
       sku1: productCell('sku1', placeholderImages.tile60Stone, 72, 12, 18),
       sku2: productCell('sku2', placeholderImages.tileWood, 72, 38, 18),
       l1: styled(text('l1', 'Позиция 1', 'Камень\n60x120', 'small', { x: 72, y: 26, w: 21, h: 8 }), style.darkText),
@@ -150,8 +150,8 @@ export const catalogEditorialTemplates = [
     placeholderImages.previewContacts,
     {
       photo: styled(image('photo', 'Интерьер 16:9', placeholderImages.catalogInteriorWarm, 'interior', '16:9', { x: 7, y: 9.2, w: 52, h: 78 }), style.imageShadow),
-      heading: styled(text('heading', 'Заголовок', 'Продолжить\nподбор', 'hero', { x: 64, y: 22, w: 29, h: 16 }), style.darkText),
-      story: styled(text('story', 'Описание', 'Следующий шаг — образцы, расчёт площади и согласование тона по партии. Контакты менеджера сюда не выносятся: это полоса lookbook, а не визитка.', 'body', { x: 64, y: 42, w: 29, h: 24 }), style.mutedText),
+      heading: styled(text('heading', 'Заголовок', 'Продолжить\nподбор', 'h1', { x: 64, y: 22, w: 29, h: 16 }), style.darkText),
+      story: styled(text('story', 'Описание', 'Начните с образцов. Сравните фактуры при дневном свете, выберите оттенок и составьте палитру для своего пространства.', 'body', { x: 64, y: 42, w: 29, h: 24 }), style.mutedText),
       caption: styled(text('caption', 'Подпись сцены', 'Том закрыт · серия открыта', 'small', { x: 64, y: 70, w: 29, h: 8 }), style.darkText)
     }
   )

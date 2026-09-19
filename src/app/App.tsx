@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { ResizableWorkspace } from '../components/ResizableWorkspace/ResizableWorkspace';
 import { ArrowLeft, ArrowRight, Download, Plus, Save, Star, UserRound } from 'lucide-react';
 import { track } from '../analytics/analyticsClient';
 import { projectAnalyticsProperties, zoneAnalyticsProperties } from '../analytics/projectAnalytics';
@@ -1073,7 +1074,7 @@ export function App() {
         actions={topBarActions}
       />
 
-      <main className="workspace">
+      <ResizableWorkspace>
         <PageLibrary
           currentPreset={project.preset}
           projectTitle={project.title}
@@ -1161,7 +1162,7 @@ export function App() {
 
           <VilrayCTA placement="right_panel" onOpenMaterials={(variantId) => openVilrayMaterials('right_cta', variantId)} />
         </aside>
-      </main>
+      </ResizableWorkspace>
       {storageWarning && (
         <div className="storage-warning" role="status">
           <span>{storageWarning}</span>

@@ -24,7 +24,7 @@ export const catalogOverviewTemplates = [
   template('catalog_collection_story', 'catalog_overview', 'Каталог: история коллекции', 'Текстовая вводная страница с интерьером, образцом и характеристиками.', placeholderImages.previewProductHero, {
     image: styled(image('image', 'Интерьер 16:9', placeholderImages.catalogInteriorWarm, 'interior', '16:9', { x: 7, y: 8, w: 49, h: 30 }), style.imageShadow),
     brandBadge: styled(badge('brandBadge', 'Коллекция', { x: 63, y: 10, w: 20, h: 4.6 }), style.accentBadge),
-    heading: styled(text('heading', 'Заголовок', 'Спокойная база\nдля интерьера', 'h1', { x: 63, y: 21, w: 29, h: 12 }), style.darkText),
+    heading: styled(text('heading', 'Заголовок', 'Спокойная база\nдля интерьера', 'h1', { x: 59, y: 21, w: 34, h: 20 }), style.darkText),
     body: styled(text('body', 'Текст', 'Коллекция построена вокруг нейтральной фактуры камня. Она хорошо работает как основной фон и не спорит с мебелью, светом и декором.', 'body', { x: 8, y: 50, w: 45, h: 16 }), style.mutedText),
     sample: productCell('sample', placeholderImages.tile60Stone, 62, 49, 20),
     specs: styled(iconRow('specs', 'Иконки', { x: 8, y: 78, w: 84, h: 11 }, [

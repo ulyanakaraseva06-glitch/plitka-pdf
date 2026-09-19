@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { ArrowLeft, ArrowRight, Copy, Plus, Trash2 } from 'lucide-react';
+import { useId, useState } from 'react';
+import { ArrowLeft, ArrowRight, ChevronDown, ChevronUp, Copy, Plus, Trash2 } from 'lucide-react';
 import { DocumentRenderSettings, Page } from '../../types/project';
 import { AddPageModal } from '../modals/AddPageModal';
-import { PdfPageRenderer } from '../PdfPageRenderer/PdfPageRenderer';
+import { FitPagePreview } from '../FitPagePreview/FitPagePreview';
 
 type DocumentPageStripProps = {
   pages: Page[];
@@ -22,14 +22,32 @@ export function DocumentPageStrip(props: DocumentPageStripProps) {
   const [draggingPageId, setDraggingPageId] = useState<string | null>(null);
   const [dropTargetPageId, setDropTargetPageId] = useState<string | null>(null);
   const [isCatalogOpen, setCatalogOpen] = useState(false);
+  const listId = useId();
+  const [collapsed, setCollapsed] = useState(() => {
+    try { return localStorage.getItem('plitka_page_strip_collapsed') === 'true'; } catch { return false; }
+  });
+
+  function toggleCollapsed() {
+    setCollapsed((current) => {
+      try { localStorage.setItem('plitka_page_strip_collapsed', String(!current)); } catch { /* Optional preference. */ }
+      return !current;
+    });
+  }
 
   return (
-    <section className="page-strip">
+    <section className={`page-strip${collapsed ? ' is-collapsed' : ''}`}>
       <div className="strip-heading">
         <strong>Страницы документа</strong>
         <span>Страниц: {pages.length}</span>
+        <div className="strip-heading-actions">
+          <button className="icon-btn" type="button" onClick={() => setCatalogOpen(true)} title="Добавить страницу" aria-label="Добавить страницу" aria-haspopup="dialog"><Plus size={16} /></button>
+          <button className="btn btn-ghost strip-collapse-btn" type="button" onClick={toggleCollapsed} aria-expanded={!collapsed} aria-controls={listId}>
+            {collapsed ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            {collapsed ? 'Развернуть' : 'Свернуть'}
+          </button>
+        </div>
       </div>
-      <div className="strip-list">
+      <div className="strip-list" id={listId} hidden={collapsed}>
         {pages.map((page, index) => (
           <article
             key={page.id}
@@ -61,10 +79,8 @@ export function DocumentPageStrip(props: DocumentPageStripProps) {
               setDropTargetPageId(null);
             }}
           >
-            <button className="thumb-button" onClick={() => onSelectPage(page.id)}>
-              <div className="thumb-scale">
-                <PdfPageRenderer page={page} renderSettings={renderSettings} />
-              </div>
+            <button className="thumb-button" onClick={() => onSelectPage(page.id)} aria-label={`Страница ${index + 1}: ${page.title}`}>
+              <FitPagePreview page={page} renderSettings={renderSettings} padding={3} />
             </button>
             <div className="strip-card-meta">
               <span>{String(index + 1).padStart(2, '0')}</span>

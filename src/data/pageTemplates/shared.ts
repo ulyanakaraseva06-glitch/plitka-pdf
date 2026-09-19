@@ -66,7 +66,7 @@ export const style = {
   softPanel: { backgroundColor: '#f7f4ef', borderRadius: 0 },
   whitePanel: { backgroundColor: '#ffffff', borderRadius: 0 },
   darkPanel: { backgroundColor: '#292724', textColor: '#f7f3ec', borderRadius: 0 },
-  imageShadow: { borderRadius: 0, shadow: 'soft' as const },
+  imageShadow: { borderRadius: 0, shadow: 'none' as const },
   imagePlain: { borderRadius: 0 }
 };
 
@@ -108,7 +108,7 @@ export function image(
   aspectRatio: NonNullable<ImageZone['aspectRatio']>,
   layout: ZoneLayout
 ): ImageZone {
-  const fit = imageRole === 'interior' ? 'fill' : 'contain';
+  const fit = imageRole === 'interior' ? 'cover' : 'contain';
   return { id, kind: 'image', label, src, alt: label, imageRole, aspectRatio, fit, layout };
 }
 
@@ -176,15 +176,15 @@ export function pageKindLabel(category: PageCategory) {
 }
 
 export function bottomMetaLabel(category: PageCategory) {
-  if (category === 'catalog_grid') return 'Товарные ячейки универсальны: квадратная зона 1:1, изображение вписывается целиком';
-  if (category === 'catalog_interior') return 'Интерьерные изображения обрезаются по cover, товарные зоны остаются contain';
-  if (category === 'catalog_visual_focus') return 'Интерьеры работают как сцена, крупные плиты и SKU остаются универсальными зонами contain';
+  if (category === 'catalog_grid') return 'Коллекция · Форматы и поверхности';
+  if (category === 'catalog_interior') return 'Материалы в пространстве · Интерьерные решения';
+  if (category === 'catalog_visual_focus') return 'Фактура, свет и масштаб';
   if (category === 'catalog_specs') return 'Форматы, финиши, толщина и применение уточняются по конкретной партии';
-  if (category === 'catalog_overview') return 'Обзор серии можно использовать как вводную страницу каталога или КП';
+  if (category === 'catalog_overview') return 'Коллекция · Материалы для вашего проекта';
   if (category === 'catalog_moodboard') return 'Материальные сочетания служат направлением перед точным подбором SKU';
   if (category === 'price') return 'Цены, наличие и сроки поставки уточняются по конкретному заказу';
   if (category === 'table') return 'Форматы, финиши, упаковка и применение проверяются по партии';
-  if (category === 'contacts') return 'Финальный блок можно заменить на контакты менеджера, сайт или QR';
+  if (category === 'contacts') return 'От первого образца до готового пространства';
   return 'Форматы 60x60 / 60x120 / 20x120 · поверхности: матовая / сатин · применение: пол / стены';
 }
 
@@ -235,17 +235,17 @@ export function productPanelZones(category: PageCategory, zones: Record<string, 
   return panels;
 }
 
-export function structureZones(category: PageCategory, title: string, zones: Record<string, EditableZone>): Record<string, EditableZone> {
+export function structureZones(category: PageCategory, zones: Record<string, EditableZone>): Record<string, EditableZone> {
   if (category === 'cover') {
     return {};
   }
 
   return {
-    pageTopMeta: microText('pageTopMeta', `${pageKindLabel(category)} · ${title}`, { x: 7, y: 3.4, w: 70, h: 2.5 }),
+    pageTopMeta: microText('pageTopMeta', pageKindLabel(category), { x: 7, y: 3.4, w: 70, h: 3 }),
     pageTopRule: divider('pageTopRule', { x: 7, y: 7.1, w: 86, h: 0.22 }),
     ...productPanelZones(category, zones),
     pageBottomRule: divider('pageBottomRule', { x: 7, y: 92.8, w: 86, h: 0.22 }),
-    pageBottomMeta: microText('pageBottomMeta', bottomMetaLabel(category), { x: 7, y: 94, w: 70, h: 2.4 })
+    pageBottomMeta: microText('pageBottomMeta', bottomMetaLabel(category), { x: 7, y: 94, w: 78, h: 3.4 })
   };
 }
 
@@ -264,7 +264,7 @@ export function template(
     description,
     thumbnail,
     defaultZones: {
-      ...structureZones(category, title, defaultZones),
+      ...structureZones(category, defaultZones),
       logo: logo({ x: 82, y: 2.0, w: 11, h: 5.2 }),
       ...defaultZones
     }

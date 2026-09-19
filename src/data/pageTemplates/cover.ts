@@ -37,7 +37,7 @@ export const coverTemplates = [
     tile1: productCell('tile1', placeholderImages.tile60Stone, 9, 62, 18),
     tile2: productCell('tile2', placeholderImages.tile120Marble, 31, 62, 18),
     tile3: productCell('tile3', placeholderImages.tileWood, 53, 62, 18),
-    note: styled(text('note', 'Техническая подпись', 'Камень / мрамор / дерево\nуниверсальные зоны под образцы', 'small', { x: 75, y: 64, w: 17, h: 9 }), style.mutedText)
+    note: styled(text('note', 'Техническая подпись', 'Камень / мрамор / дерево\nПалитра проекта', 'small', { x: 75, y: 64, w: 17, h: 9 }), style.mutedText)
   }),
 
   template('cover_dark_statement', 'cover', 'Обложка: темный акцент', 'Контрастная обложка для премиальной подборки с крупным интерьером.', placeholderImages.previewCoverHero, {

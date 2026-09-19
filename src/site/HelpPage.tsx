@@ -1,4 +1,4 @@
-import { HelpContent } from './HelpContent';
+import { HelpSections } from './HelpSections';
 import { SitePageShell } from './SitePageShell';
 
 export function HelpPage() {
@@ -9,7 +9,7 @@ export function HelpPage() {
       title="Как работать в Плитка PDF"
       lead="Короткий обзор рабочего стола и ответы на типичные вопросы: от первого документа до выгрузки PDF."
     >
-      <HelpContent />
+      <HelpSections />
     </SitePageShell>
   );
 }

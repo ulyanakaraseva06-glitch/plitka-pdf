@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Pause, Play } from 'lucide-react';
 import { helpQuestions, helpVideoScenes } from './helpContent';
 
-export function HelpContent() {
+export function HelpSections() {
   const [sceneIndex, setSceneIndex] = useState(0);
   const [playing, setPlaying] = useState(true);
   const [activeId, setActiveId] = useState(helpQuestions[0].id);

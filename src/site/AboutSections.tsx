@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { aboutSections } from './aboutContent';
 
-export function AboutContent() {
+export function AboutSections() {
   const [openId, setOpenId] = useState(aboutSections[0].id);
 
   return (

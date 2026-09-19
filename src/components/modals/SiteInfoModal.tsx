@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { X } from 'lucide-react';
-import { AboutContent } from '../../site/AboutContent';
-import { HelpContent } from '../../site/HelpContent';
+import { AboutSections } from '../../site/AboutSections';
+import { HelpSections } from '../../site/HelpSections';
 
 export type SiteInfoKind = 'help' | 'about';
 
@@ -76,7 +76,7 @@ export function SiteInfoModal({ kind, onKindChange, onClose }: SiteInfoModalProp
         </header>
 
         <div className="site-info-modal-content">
-          {kind === 'help' ? <HelpContent /> : <AboutContent />}
+          {kind === 'help' ? <HelpSections /> : <AboutSections />}
         </div>
       </section>
     </div>

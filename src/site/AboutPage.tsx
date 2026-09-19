@@ -1,4 +1,4 @@
-import { AboutContent } from './AboutContent';
+import { AboutSections } from './AboutSections';
 import { SitePageShell } from './SitePageShell';
 
 export function AboutPage() {
@@ -9,7 +9,7 @@ export function AboutPage() {
       title="Плитка PDF — сервис для каталогов, прайсов и подборок"
       lead="Рабочий инструмент Vilray Studio для поставщиков, салонов и производителей плитки: собрать аккуратный PDF из готовых страниц и отправить клиенту."
     >
-      <AboutContent />
+      <AboutSections />
     </SitePageShell>
   );
 }

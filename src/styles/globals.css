@@ -782,12 +782,6 @@ button:disabled {
   --document-divider: rgba(96, 76, 52, 0.48);
 }
 
-.pdf-page[data-document-theme='dark'] .page-watermark {
-  background:
-    linear-gradient(90deg, rgba(169, 139, 208, 0.14), transparent 38%),
-    radial-gradient(circle at 92% 8%, rgba(184, 151, 90, 0.12), transparent 30%);
-}
-
 .pdf-page[data-document-theme='dark'] .pdf-table {
   background: rgba(42, 45, 49, 0.92);
   color: #f7f3ec;
@@ -815,15 +809,6 @@ button:disabled {
 .pdf-page[data-text-palette='contrast'] { --document-text: #050505; --document-text-muted: #ffffff; }
 .pdf-page[data-text-palette='muted'] { --document-text: #3f4246; --document-text-muted: #d8cab8; }
 .pdf-page[data-text-palette='graphite'] { --document-text: #f3eee6; --document-text-muted: #2c3035; }
-
-.page-watermark {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(90deg, rgba(155, 121, 198, 0.04), transparent 36%),
-    radial-gradient(circle at 92% 8%, rgba(184, 151, 90, 0.08), transparent 28%);
-}
 
 .page-zone {
   position: absolute;
@@ -3263,10 +3248,6 @@ body {
 .cabinet-header {
   background: var(--surface);
   backdrop-filter: none;
-}
-
-.pdf-page[data-document-theme='dark'] .page-watermark {
-  background: rgba(255, 255, 255, 0.018);
 }
 
 .pdf-page[data-document-theme='dark'] .icon-single span,

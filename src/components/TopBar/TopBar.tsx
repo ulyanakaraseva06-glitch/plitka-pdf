@@ -32,6 +32,8 @@ type TopBarProps = {
   selectedSchemeId: string;
   onSchemeChange: (schemeId: DocumentSchemeId) => void;
   onResetDesignToScheme: () => void;
+  onOpenHelp: () => void;
+  onOpenAbout: () => void;
 };
 
 type PaletteColor = {
@@ -291,7 +293,9 @@ export function TopBar(props: TopBarProps) {
     onShowDividersChange,
     selectedSchemeId,
     onSchemeChange,
-    onResetDesignToScheme
+    onResetDesignToScheme,
+    onOpenHelp,
+    onOpenAbout
   } = props;
   const [feedbackKey, setFeedbackKey] = useState<string | null>(null);
   const activeThemeColor = project.documentBackgroundColor ?? themes.find((theme) => theme.id === project.documentTheme)?.color ?? '#ffffff';
@@ -371,8 +375,8 @@ export function TopBar(props: TopBarProps) {
       </div>
 
       <div className="top-actions">
-        <a className="btn btn-ghost top-page-link" href="/help/" target="_blank" rel="noreferrer">Помощь</a>
-        <a className="btn btn-ghost top-page-link" href="/about/" target="_blank" rel="noreferrer">О сервисе</a>
+        <button className="btn btn-ghost top-page-link" type="button" onClick={onOpenHelp}>Помощь</button>
+        <button className="btn btn-ghost top-page-link" type="button" onClick={onOpenAbout}>О сервисе</button>
         {actions.map((action) => (
           <button
             key={action.label}

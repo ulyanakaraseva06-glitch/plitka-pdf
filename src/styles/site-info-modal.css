@@ -1,0 +1,117 @@
+.site-info-modal-backdrop {
+  z-index: 260;
+  align-items: start;
+  padding: 24px;
+  overflow: auto;
+}
+
+.site-info-modal {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  width: min(1120px, 96vw);
+  max-height: min(860px, 94vh);
+  margin: auto;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) + 4px);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 28px 78px rgba(0, 0, 0, 0.22);
+  overflow: hidden;
+}
+
+.site-info-modal > .close-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 2;
+}
+
+.site-info-modal-header {
+  padding: 22px 56px 16px 28px;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 94%, var(--accent-soft));
+}
+
+.site-info-modal-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.site-info-modal-tabs button {
+  min-height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.site-info-modal-tabs button.active,
+.site-info-modal-tabs button:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.site-info-modal-header > span {
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.site-info-modal-header h2 {
+  margin: 8px 0 8px;
+  font-size: clamp(22px, 2.6vw, 30px);
+  line-height: 1.18;
+}
+
+.site-info-modal-header p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.site-info-modal-content {
+  min-height: 0;
+  overflow: auto;
+  padding: 8px 28px 28px;
+}
+
+.site-info-modal-content .help-video-block,
+.site-info-modal-content .help-qa,
+.site-info-modal-content .about-accordion {
+  margin-top: 20px;
+}
+
+.site-info-modal-content .help-answer {
+  position: static;
+}
+
+.site-info-modal-content .help-questions {
+  max-height: none;
+}
+
+@media (max-width: 860px) {
+  .site-info-modal-backdrop {
+    padding: 12px;
+  }
+
+  .site-info-modal-header,
+  .site-info-modal-content {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .site-info-modal-header {
+    padding-right: 48px;
+  }
+}

@@ -38,6 +38,7 @@ import { ExportCheckModal } from '../components/modals/ExportCheckModal';
 import { LocalDocumentsModal } from '../components/modals/LocalDocumentsModal';
 import { VilrayMaterialsModal } from '../components/modals/VilrayMaterialsModal';
 import { ConfirmModal } from '../components/modals/ConfirmModal';
+import { SiteInfoModal, type SiteInfoKind } from '../components/modals/SiteInfoModal';
 import { getDocumentScheme, type DocumentSchemeId } from '../data/documentSchemes';
 import {
   createBlankPage,
@@ -156,6 +157,7 @@ export function App() {
   const [isExportCheckOpen, setExportCheckOpen] = useState(false);
   const [isLibraryOpen, setLibraryOpen] = useState(false);
   const [isPromoOpen, setPromoOpen] = useState(false);
+  const [siteInfoKind, setSiteInfoKind] = useState<SiteInfoKind | null>(null);
   const [promoVariantId, setPromoVariantId] = useState<VilrayPromoId>('interior_images');
   const [savedProjects, setSavedProjects] = useState(() => loadSavedProjects());
   const [userTemplates, setUserTemplates] = useState(() => loadSavedTemplates());
@@ -1043,10 +1045,17 @@ export function App() {
           <p>Мобильная версия редактора в этот релиз не входит. Откройте сервис на ноутбуке или настольном компьютере, чтобы работать со страницами, шаблонами и PDF без сломанной верстки.</p>
           <div className="desktop-required-actions">
             <a className="btn btn-primary" href="/">Перейти на лендинг</a>
-            <a className="btn btn-ghost" href="/help/">Помощь</a>
-            <a className="btn btn-ghost" href="/about/">О сервисе</a>
+            <button className="btn btn-ghost" type="button" onClick={() => setSiteInfoKind('help')}>Помощь</button>
+            <button className="btn btn-ghost" type="button" onClick={() => setSiteInfoKind('about')}>О сервисе</button>
           </div>
         </section>
+        {siteInfoKind && (
+          <SiteInfoModal
+            kind={siteInfoKind}
+            onKindChange={setSiteInfoKind}
+            onClose={() => setSiteInfoKind(null)}
+          />
+        )}
       </div>
     );
   }
@@ -1071,6 +1080,8 @@ export function App() {
         selectedSchemeId={serviceSettings.defaultDocumentScheme ?? 'classic'}
         onSchemeChange={applyDocumentScheme}
         onResetDesignToScheme={resetDesignToSelectedScheme}
+        onOpenHelp={() => setSiteInfoKind('help')}
+        onOpenAbout={() => setSiteInfoKind('about')}
         actions={topBarActions}
       />
 
@@ -1202,6 +1213,14 @@ export function App() {
         <VilrayMaterialsModal
           variantId={promoVariantId}
           onClose={() => setPromoOpen(false)}
+        />
+      )}
+
+      {siteInfoKind && (
+        <SiteInfoModal
+          kind={siteInfoKind}
+          onKindChange={setSiteInfoKind}
+          onClose={() => setSiteInfoKind(null)}
         />
       )}
 

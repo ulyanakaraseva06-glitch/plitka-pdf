@@ -470,7 +470,6 @@ const {
       data-export-page={exportMode ? 'true' : undefined}
       style={documentStyle}
     >
-      <div className="page-watermark" />
       {Object.values(page.zones).filter((zone) => zone.id !== 'footerBrand' && zone.visible !== false && (resolvedShowDividers || zone.kind !== 'divider') && (resolvedShowLogos || !isLogoZone(zone))).map((zone) => {
         const className = `page-zone zone-${zone.kind} text-tone-${textTone(zone)} ${editorMode ? 'editable' : ''} ${layoutEditMode ? 'layout-editable' : ''} ${selectedZoneId === zone.id ? 'selected' : ''}`;
         const style = zoneStyle(page, zone, resolvedDocumentTheme, resolvedDocumentDividerColor, hasDocumentTextOverride);
